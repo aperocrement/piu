@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Piu</title>
+  <link rel="stylesheet" href="css/piu-tokens.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Piu" />
+  <meta name="theme-color" content="#060a14" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html,body {
+      width:100%; height:100%;
+      background:#060a14; overflow:hidden;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    }
+    #bgCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+    .app {
+      position:relative; z-index:1;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      height:100%; padding:40px 24px; text-align:center;
+    }
+    .logo {
+      font-size:56px; font-weight:700; letter-spacing:-0.03em; line-height:1;
+      color:#e8eaf0;
+      text-shadow:0 0 50px rgba(0,198,255,0.3), 0 0 100px rgba(0,198,255,0.08);
+    }
+    .logo span { color:#00c6ff; }
+    .logo-sub {
+      margin-top:6px; font-size:13px; font-weight:510;
+      letter-spacing:0.12em; text-transform:uppercase;
+      color:rgba(255,255,255,0.35);
+    }
+
+    /* Big play button */
+    .play-btn {
+      display:flex; align-items:center; justify-content:center;
+      width:180px; height:52px; margin-top:44px;
+      background:transparent; border:2px solid #00c6ff;
+      border-radius:999px; color:#00c6ff;
+      font-size:18px; font-weight:590; letter-spacing:0.08em;
+      cursor:pointer; text-decoration:none;
+      animation:btnPulse 2.5s ease-in-out infinite;
+      -webkit-tap-highlight-color:transparent;
+    }
+    @keyframes btnPulse {
+      0%,100%{box-shadow:0 0 24px rgba(0,198,255,0.25),0 0 48px rgba(0,198,255,0.06);}
+      50%{box-shadow:0 0 40px rgba(0,198,255,0.4),0 0 80px rgba(0,198,255,0.12);}
+    }
+    .play-btn:active { background:#00c6ff; color:#060a14; transform:scale(0.95); }
+
+    .footer {
+      position:absolute; bottom:28px;
+      font-size:11px; color:rgba(255,255,255,0.25); letter-spacing:0.06em;
+    }
+
+    /* ---- Mode picker overlay ---- */
+    .picker-overlay {
+      position:absolute; inset:0; z-index:10;
+      background:rgba(6,10,20,0.96);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      display:none; flex-direction:column;
+      align-items:center; justify-content:center; gap:16px;
+      padding:40px 24px;
+    }
+    .picker-overlay.show { display:flex; }
+    .picker-title {
+      font-size:22px; font-weight:700; letter-spacing:-0.01em;
+      color:#e8eaf0; margin-bottom:16px;
+    }
+    .picker-back {
+      position:absolute; top:20px; left:20px;
+      width:36px; height:36px;
+      display:flex; align-items:center; justify-content:center;
+      background:transparent; border:none; color:rgba(255,255,255,0.4);
+      font-size:20px; cursor:pointer;
+    }
+
+    .choice-card {
+      display:flex; align-items:center; gap:14px;
+      width:100%; max-width:280px; padding:16px 20px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px;
+      cursor:pointer; transition:all 150ms;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .choice-card:active { border-color:#00c6ff; background:rgba(0,198,255,0.06); }
+    .choice-icon {
+      width:40px; height:40px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; flex-shrink:0;
+    }
+    .icon-single { background:rgba(0,198,255,0.1); }
+    .icon-double { background:rgba(255,215,64,0.1); }
+    .icon-easy  { background:rgba(0,230,118,0.1); }
+    .icon-hard  { background:rgba(255,68,112,0.1); }
+
+    .choice-info { flex:1; text-align:left; }
+    .choice-name { font-size:16px; font-weight:590; color:#e8eaf0; }
+    .choice-desc { font-size:12px; color:rgba(255,255,255,0.35); margin-top:2px; }
+    .choice-arrow { color:rgba(255,255,255,0.2); }
+
+    .btn-quick {
+      padding:12px 28px;
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:999px;
+      background:transparent; color:rgba(255,255,255,0.45);
+      font-size:13px; cursor:pointer;
+    }
+    .btn-quick:active { border-color:rgba(255,255,255,0.3); color:#fff; }
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="app">
+  <div>
+    <div class="logo">P<span>i</span>u</div>
+    <div class="logo-sub">回合弹射竞技</div>
+  </div>
+
+  <div class="play-btn" onclick="showPicker('main')">开始游戏</div>
+</div>
+
+<!-- Picker: 单人/双人 -->
+<div class="picker-overlay" id="pickerMain">
+  <div class="picker-title">选择模式</div>
+  <div class="choice-card" onclick="showPicker('single')">
+    <div class="choice-icon icon-single">🧑</div>
+    <div class="choice-info"><div class="choice-name">单人</div><div class="choice-desc">人机对战 · 三种难度</div></div>
+    <span class="choice-arrow">›</span>
+  </div>
+  <div class="choice-card" onclick="showPicker('double')">
+    <div class="choice-icon icon-double">👥</div>
+    <div class="choice-info"><div class="choice-name">双人</div><div class="choice-desc">同屏 · 情侣 · WiFi联机</div></div>
+    <span class="choice-arrow">›</span>
+  </div>
+  <button class="btn-quick" onclick="hideAll()" style="margin-top:8px">取消</button>
+</div>
+
+<!-- Picker: 单人难度 -->
+<div class="picker-overlay" id="pickerSingle">
+  <button class="picker-back" onclick="showPicker('main')">‹</button>
+  <div class="picker-title">选择难度</div>
+  <a class="choice-card" href="game-board.html?mode=ai&diff=easy">
+    <div class="choice-icon icon-easy">🟢</div>
+    <div class="choice-info"><div class="choice-name">简单</div><div class="choice-desc">AI 误差大 · 节奏慢</div></div>
+    <span class="choice-arrow">›</span>
+  </a>
+  <a class="choice-card" href="game-board.html?mode=ai&diff=medium">
+    <div class="choice-icon icon-single">🔵</div>
+    <div class="choice-info"><div class="choice-name">普通</div><div class="choice-desc">AI 中等误差 · 正常节奏</div></div>
+    <span class="choice-arrow">›</span>
+  </a>
+  <a class="choice-card" href="game-board.html?mode=ai&diff=hard">
+    <div class="choice-icon icon-hard">🔴</div>
+    <div class="choice-info"><div class="choice-name">困难</div><div class="choice-desc">AI 近乎最优 · 高速</div></div>
+    <span class="choice-arrow">›</span>
+  </a>
+  <button class="btn-quick" onclick="hideAll()" style="margin-top:8px">取消</button>
+</div>
+
+<!-- Picker: 双人模式 -->
+<div class="picker-overlay" id="pickerDouble">
+  <button class="picker-back" onclick="showPicker('main')">‹</button>
+  <div class="picker-title">双人对战</div>
+  <a class="choice-card" href="game-board.html?mode=local">
+    <div class="choice-icon icon-double">📱</div>
+    <div class="choice-info"><div class="choice-name">同屏双人</div><div class="choice-desc">一台手机上下分屏</div></div>
+    <span class="choice-arrow">›</span>
+  </a>
+  <a class="choice-card" href="game-board.html?mode=couple">
+    <div class="choice-icon" style="background:rgba(255,105,180,0.1)">💕</div>
+    <div class="choice-info"><div class="choice-name">情侣对战</div><div class="choice-desc">女生3分赢 · 男生6分赢</div></div>
+    <span class="choice-arrow">›</span>
+  </a>
+  <a class="choice-card" href="game-board.html?mode=network">
+    <div class="choice-icon" style="background:rgba(0,230,118,0.1)">📶</div>
+    <div class="choice-info"><div class="choice-name">WiFi 联机</div><div class="choice-desc">两台手机同WiFi对战</div></div>
+    <span class="choice-arrow">›</span>
+  </a>
+  <button class="btn-quick" onclick="hideAll()" style="margin-top:8px">取消</button>
+</div>
+
+<div class="footer">Piu v0.2</div>
+
+<script>
+/* ---- Animated background ---- */
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const pts = [];
+for (let i=0;i<35;i++) pts.push({
+  x:Math.random()*W, y:Math.random()*H,
+  vx:(Math.random()-0.5)*0.2, vy:(Math.random()-0.5)*0.2,
+  r:Math.random()*1.3+0.4, a:Math.random()*0.4+0.1,
+  pulse:Math.random()*Math.PI*2,
+});
+
+function animate() {
+  ctx.clearRect(0,0,W,H);
+  const gs=28;
+  ctx.strokeStyle='rgba(0,198,255,0.02)'; ctx.lineWidth=0.5;
+  for(let x=gs;x<W;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=gs;y<H;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  for(const p of pts){
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+    p.pulse+=0.015;
+    const a=p.a*(0.5+0.5*Math.sin(p.pulse));
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(0,198,255,${a})`; ctx.fill();
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* ---- Picker logic ---- */
+function showPicker(which) {
+  hideAll();
+  const map = { main:'pickerMain', single:'pickerSingle', double:'pickerDouble' };
+  const el = document.getElementById(map[which]);
+  if (el) el.classList.add('show');
+}
+function hideAll() {
+  document.querySelectorAll('.picker-overlay').forEach(el => el.classList.remove('show'));
+}
+
+/* ---- PWA ---- */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>

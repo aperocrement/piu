@@ -1,0 +1,215 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Piu — 回合弹射竞技</title>
+  <link rel="stylesheet" href="css/piu-tokens.css" />
+  <style>
+    .iphone-frame {
+      width: 390px;
+      height: 844px;
+      margin: 0 auto;
+      background: var(--bg);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 2px #1a1f2e,
+        0 0 0 6px #0d1117,
+        0 0 0 8px rgba(255,255,255,0.04),
+        0 20px 60px rgba(0,0,0,0.5);
+    }
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px 0;
+      height: 54px;
+      font-size: 14px;
+      font-weight: 590;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+    .status-icons { display: flex; align-items: center; gap: 6px; }
+    .dynamic-island {
+      width: 126px; height: 36px;
+      margin: 8px auto 0;
+      background: #000;
+      border-radius: 22px;
+    }
+    .app-content {
+      padding: 20px 24px 0;
+      display: flex;
+      flex-direction: column;
+      height: calc(844px - 54px - 36px - 34px);
+    }
+    .logo-area { text-align: center; padding: 16px 0 24px; }
+    .logo-wordmark {
+      font-family: var(--font-display);
+      font-size: 52px; font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      text-shadow: 0 0 40px var(--accent-glow);
+    }
+    .logo-wordmark span { color: var(--accent); }
+    .logo-tagline {
+      margin-top: 4px;
+      font-size: 14px; font-weight: 450;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .mode-list {
+      flex: 1;
+      display: flex; flex-direction: column; gap: 10px;
+      overflow-y: auto; padding-bottom: 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mode-list::-webkit-scrollbar { display: none; }
+    .mode-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: background var(--duration-fast) var(--ease-out),
+                  border-color var(--duration-fast) var(--ease-out),
+                  transform var(--duration-fast) var(--ease-out);
+      text-decoration: none; color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mode-card:active {
+      background: var(--surface-2);
+      border-color: var(--accent);
+      transform: scale(0.985);
+      box-shadow: var(--accent-glow);
+    }
+    .mode-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .mode-icon svg { width: 22px; height: 22px; }
+    .icon-tutorial { background: rgba(0,198,255,0.12); color: var(--accent); }
+    .icon-levels  { background: rgba(0,230,118,0.12); color: var(--success); }
+    .icon-ai      { background: rgba(255,68,112,0.12); color: var(--red-team); }
+    .icon-local   { background: rgba(255,215,64,0.12); color: var(--gold); }
+    .icon-bt      { background: rgba(124,130,255,0.12); color: #7c82ff; }
+    .mode-info { flex: 1; min-width: 0; }
+    .mode-name {
+      font-family: var(--font-display);
+      font-size: 17px; font-weight: 590; letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+    .mode-desc {
+      margin-top: 2px;
+      font-size: 13px; font-weight: 400; letter-spacing: 0.01em;
+      color: var(--muted);
+    }
+    .mode-arrow { color: var(--muted); flex-shrink: 0; }
+    .bottom-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0 0;
+      border-top: 1px solid var(--border);
+    }
+    .version-label {
+      font-size: 12px; color: var(--muted); letter-spacing: 0.04em;
+    }
+    .settings-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      color: var(--muted);
+      font-size: 13px; font-weight: 510; letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: color var(--duration-fast), border-color var(--duration-fast);
+    }
+    .settings-btn:active { color: var(--fg); border-color: var(--fg); }
+    .settings-btn svg { width: 16px; height: 16px; }
+    .home-indicator {
+      width: 134px; height: 5px;
+      margin: 12px auto 8px;
+      background: var(--fg);
+      border-radius: 3px;
+      opacity: 0.3;
+    }
+    @media (max-width: 430px) {
+      .iphone-frame { width: 100%; height: 100vh; border-radius: 0; box-shadow: none; }
+      .app-content { height: calc(100vh - 54px - 36px - 34px); }
+    }
+    @media (min-width: 431px) {
+      body { display: flex; align-items: center; justify-content: center; padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <span class="status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="2.5" height="4" rx="0.6" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.6" fill="currentColor"/><rect x="7" y="3.5" width="2.5" height="8.5" rx="0.6" fill="currentColor"/><rect x="10.5" y="1" width="2.5" height="11" rx="0.6" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.5c2.4 0 4.6.7 6.2 1.8.4.3.8.5 1.3.5v1.5c-.5 0-1-.2-1.4-.5C12.6 4.5 10.4 4 8 4S3.4 4.5 1.9 5.8c-.4.3-.9.5-1.4.5V4.8c.5 0 1-.2 1.3-.5C3.4 3.2 5.6 2.5 8 2.5Z" fill="currentColor"/><circle cx="8" cy="9" r="2" fill="currentColor"/></svg>
+      <svg width="28" height="13" viewBox="0 0 28 13"><rect x="0" y="0" width="26" height="13" rx="3" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.5"/><rect x="2" y="2.5" width="20" height="8" rx="1.2" fill="currentColor"/><rect x="24" y="3.5" width="2" height="6" rx="0.8" fill="currentColor" opacity="0.7"/></svg>
+    </span>
+  </div>
+  <div class="dynamic-island"></div>
+  <div class="app-content">
+    <div class="logo-area">
+      <div class="logo-wordmark">P<span>i</span>u</div>
+      <div class="logo-tagline">回合弹射竞技</div>
+    </div>
+    <nav class="mode-list">
+      <a class="mode-card" href="game-board.html?mode=tutorial">
+        <div class="mode-icon icon-tutorial">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="mode-info"><div class="mode-name">教程</div><div class="mode-desc">30 秒学会拖拽瞄准与控制力度</div></div>
+        <svg class="mode-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="mode-card" href="game-board.html?mode=solo&level=1">
+        <div class="mode-icon icon-levels">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M7 20l2.5-6h5L17 20"/><path d="M12 14v6"/></svg>
+        </div>
+        <div class="mode-info"><div class="mode-name">单机关卡</div><div class="mode-desc">15 个命中挑战，冲击三星评价</div></div>
+        <svg class="mode-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="mode-card" href="game-board.html?mode=ai&difficulty=medium">
+        <div class="mode-icon icon-ai">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 10h6"/><path d="M9 14h4"/><circle cx="17" cy="16" r="1.5"/></svg>
+        </div>
+        <div class="mode-info"><div class="mode-name">人机对战</div><div class="mode-desc">三档 AI 难度，练习对抗策略</div></div>
+        <svg class="mode-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="mode-card" href="game-board.html?mode=local">
+        <div class="mode-icon icon-local">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="10" r="3"/><circle cx="16" cy="10" r="3"/><path d="M2 20c0-3.3 2.7-6 6-6"/><path d="M16 14c3.3 0 6 2.7 6 6"/></svg>
+        </div>
+        <div class="mode-info"><div class="mode-name">同屏双人</div><div class="mode-desc">一台手机，轮流操作，线下聚会</div></div>
+        <svg class="mode-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="mode-card" href="game-board.html?mode=bluetooth">
+        <div class="mode-icon icon-bt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10-5 4V3l5 4-10 10"/></svg>
+        </div>
+        <div class="mode-info"><div class="mode-name">蓝牙对战</div><div class="mode-desc">近场联机，不依赖网络</div></div>
+        <svg class="mode-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </nav>
+    <div class="bottom-row">
+      <span class="version-label">v0.1 · MVP</span>
+      <button class="settings-btn" onclick="location.href='game-board.html?mode=settings'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        设置
+      </button>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+</body>
+</html>
