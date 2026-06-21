@@ -214,14 +214,12 @@ function dr(){
 
   // === PLAYING HUD ===
   if(screen==='playing'&&g){
-    var hudY=topSafe+8;
-    ct.fillStyle='#f0f0f0';ct.font='bold 22px monospace';ct.textAlign='left';
-    ct.fillText(g.sc[0],16,hudY+22);
-    ct.textAlign='right';ct.fillText(g.sc[1],W-16,hudY+22);
-    ct.textAlign='center';ct.fillStyle='#ccc';ct.font='bold 13px monospace';
-    ct.fillText('ROUND '+g.round,W/2,hudY+10);
-    // Speaker icon top-right
-    drawSpeaker(W-30,hudY+8,soundOn);
+    // Scores + round in center top
+    ct.textAlign='center';
+    ct.fillStyle='#f0f0f0';ct.font='bold 26px monospace';
+    ct.fillText(g.sc[0]+'  :  '+g.sc[1],W/2,topSafe+42);
+    ct.fillStyle='#888';ct.font='bold 11px monospace';
+    ct.fillText('ROUND '+g.round,W/2,topSafe+60);
   }
 
   // Center message
@@ -236,12 +234,14 @@ function dr(){
   // Exit confirm
   if(showExit)drawExitConfirm();
 
-  // Exit button (only in playing, above home indicator)
+  // Exit + speaker buttons (bottom, above home indicator)
   if(screen==='playing'){
     var exY=H-bottomSafe-36;
     ct.fillStyle='#0a0a1a';ct.strokeStyle='#555';ct.lineWidth=2;
     ct.fillRect(12,exY,36,36);ct.strokeRect(12,exY,36,36);
     ct.fillStyle='#888';ct.font='bold 16px monospace';ct.textAlign='center';ct.fillText('X',30,exY+24);
+    // Speaker bottom-right
+    drawSpeaker(W-30,exY+18,soundOn);
   }
 }
 
@@ -339,9 +339,9 @@ wx.onTouchStart(function(e){
   var touch=e.touches[0];
   var cx=touch.clientX,cy=touch.clientY;
 
-  var hudY2=topSafe+8, exY2=H-bottomSafe-36;
-  // Speaker toggle (playing screen top-right)
-  if(screen==='playing'&&hitTest(cx,cy,W-44,hudY2-6,44,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
+  var exY2=H-bottomSafe-36;
+  // Speaker toggle (playing mode, bottom-right next to exit)
+  if(screen==='playing'&&hitTest(cx,cy,W-44,exY2-10,44,44)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
   // Exit button
   if(screen==='playing'&&hitTest(cx,cy,12,exY2,36,36)){
     if(showExit){showExit=false;return}showExit=true;return;
