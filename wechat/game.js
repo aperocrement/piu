@@ -353,11 +353,11 @@ function jr(){showLobby=false;wx.showToast({title:'Coming soon',icon:'none'})}
 // === RESTART ===
 function rs(){showGO=false;goData=null;g=mk();pts=[];sk=0;ig()}
 
-// === LOOP ===
+// === LOOP (setInterval — more reliable in WeChat) ===
 function lp(){
-  if(g){ug();up(16);dr()}
-  canvas.requestAnimationFrame(lp);
+  try{ if(g){ug();up(16);dr()} }catch(e){}
 }
+setInterval(lp, 16);
 setInterval(function(){spu()},PUI);
 if(gm==='network'){showLobby=true}
-g=mk();ig();lp();
+g=mk();ig();
