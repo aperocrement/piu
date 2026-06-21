@@ -1,6 +1,8 @@
-// Piu一Piu — WeChat Mini Game v1.1
+// Piu一Piu — WeChat Mini Game v1.2 FIX
 // High-DPI + Home screen + Sound toggle + Background demo
 try{wx.clearStorageSync()}catch(e){} // fresh start
+// DEBUG: show version on screen
+var SHOW_VERSION = true;
 var info = wx.getSystemInfoSync();
 var dpr = Math.min(info.pixelRatio || 2, 2);
 var W = info.screenWidth || info.windowWidth || 375;
@@ -396,6 +398,7 @@ wx.onTouchStart(function(e){
   // Speaker toggle (playing mode, bottom-right next to exit)
   if(screen==='playing'&&hitTest(cx,cy,W-44,exY2-10,44,44)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
   // Exit button
+  if(SHOW_VERSION){ct.fillStyle="#333";ct.font="8px monospace";ct.textAlign="left";ct.fillText("v1.2 FIX",6,topSafe+70)}
   if(screen==='playing'&&hitTest(cx,cy,12,exY2,36,36)){
     if(showExit){showExit=false;return}showExit=true;return;
   }
