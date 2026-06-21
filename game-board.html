@@ -12,42 +12,34 @@
 <meta name="theme-color" content="#000"/>
 <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:none}
-canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%;image-rendering:pixelated}
-.hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:max(14px,env(safe-area-inset-top)) 20px 0;pointer-events:none;z-index:2}
-.hud-score{font-size:28px;font-weight:700;letter-spacing:-.02em;color:#fff;transition:transform .2s}
-.hud-center{text-align:center;font-size:10px;color:rgba(255,255,255,.35)}
-.hud-round{font-size:15px;color:rgba(255,255,255,.75);font-weight:590}
-.msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:42px;font-weight:700;color:#fff;pointer-events:none;z-index:3;opacity:0;transition:opacity .15s;text-shadow:0 0 40px rgba(255,255,255,.5)}
-.msg.show{opacity:1}
-.cd{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.4);font-size:90px;font-weight:700;color:#fff;pointer-events:none;z-index:3;opacity:0;transition:all .18s cubic-bezier(.34,1.56,.64,1)}
-.cd.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
-.overlay{position:absolute;inset:0;background:rgba(0,0,0,.93);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:10;padding:40px}
-.overlay.show{display:flex}
-.overlay-title{font-size:36px;font-weight:700;color:#fff}
-.overlay-scores{display:flex;align-items:center;gap:18px;font-family:monospace;font-size:52px;font-weight:590;color:#fff}
-.overlay-sub{font-size:13px;color:rgba(255,255,255,.45)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 32px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(255,255,255,.06);color:#fff;font-size:15px;font-weight:590;cursor:pointer;min-width:120px}
-.btn:active{transform:scale(.96);background:rgba(255,255,255,.14)}
-.btn-p{background:#fff;border-color:#fff;color:#000}.btn-p:active{background:#ddd}
-.btn-g{background:transparent;border-color:transparent;color:rgba(255,255,255,.45)}
-.heart{position:absolute;pointer-events:none;z-index:4;font-size:28px;animation:hf 2.2s ease-out forwards}
-@keyframes hf{0%{opacity:1;transform:translateY(0)scale(.4)rotate(0)}50%{opacity:1;transform:translateY(-100px)scale(1.3)rotate(15deg)}100%{opacity:0;transform:translateY(-220px)scale(.3)rotate(-25deg)}}
-.flash{position:absolute;inset:0;background:#fff;pointer-events:none;z-index:2;opacity:0;transition:opacity .05s}
-.flash.go{opacity:.25;transition:opacity 0s}
-.exit-btn{position:absolute;bottom:20px;left:20px;z-index:5;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:rgba(255,255,255,.4);font-size:20px;cursor:pointer;text-decoration:none}
-.exit-btn:active{background:rgba(255,255,255,.14);color:#fff}
-
-.pixel-overlay {
-  position: absolute; inset: 0;
-  pointer-events: none; z-index: 1;
-  background: repeating-linear-gradient(
-    0deg, transparent, transparent 3px, rgba(0,0,0,.03) 3px, rgba(0,0,0,.03) 4px
-  );
-}
-
-</style>
+    *{box-sizing:border-box;margin:0;padding:0;image-rendering:pixelated}
+    html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:'Courier New',monospace;text-rendering:optimizeSpeed;-webkit-font-smoothing:none;-moz-osx-font-smoothing:unset;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:none}
+    canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%;image-rendering:pixelated}
+    .hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:16px 20px 0;pointer-events:none;z-index:2}
+    .hud-score{font-family:'Courier New',monospace;font-size:24px;font-weight:900;letter-spacing:2px;color:#fff;transition:transform .1s steps(2)}
+    .hud-center{text-align:center;font-family:'Courier New',monospace;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:2px}
+    .hud-round{font-family:'Courier New',monospace;font-size:14px;color:rgba(255,255,255,.75);font-weight:900;letter-spacing:2px}
+    .msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Courier New',monospace;font-size:36px;font-weight:900;color:#fff;pointer-events:none;z-index:3;opacity:0;transition:opacity .1s steps(2);text-shadow:4px 4px 0 rgba(0,0,0,.5)}
+    .msg.show{opacity:1}
+    .cd{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.25);font-family:'Courier New',monospace;font-size:80px;font-weight:900;color:#fff;pointer-events:none;z-index:3;opacity:0;transition:all .15s steps(3)}
+    .cd.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    .overlay{position:absolute;inset:0;background:rgba(0,0,0,.95);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;padding:32px}
+    .overlay.show{display:flex}
+    .overlay-title{font-family:'Courier New',monospace;font-size:28px;font-weight:900;color:#fff;letter-spacing:3px}
+    .overlay-scores{display:flex;align-items:center;gap:16px;font-family:'Courier New',monospace;font-size:44px;font-weight:900;color:#fff;letter-spacing:2px}
+    .overlay-sub{font-family:'Courier New',monospace;font-size:12px;color:rgba(255,255,255,.45);letter-spacing:2px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:12px 24px;border:3px solid rgba(255,255,255,.25);border-radius:0;background:rgba(255,255,255,.06);color:#fff;font-family:'Courier New',monospace;font-size:14px;font-weight:900;letter-spacing:2px;cursor:pointer;min-width:100px;box-shadow:4px 4px 0 rgba(0,0,0,.4)}
+    .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.4);border-color:#fff}
+    .btn-p{background:#fff;border-color:#fff;color:#000;box-shadow:4px 4px 0 rgba(0,0,0,.5)}.btn-p:active{background:#ddd;transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.5)}
+    .btn-g{background:transparent;border-color:transparent;color:rgba(255,255,255,.45);box-shadow:none}
+    .heart{position:absolute;pointer-events:none;z-index:4;font-size:24px;animation:hf 2.2s steps(8) forwards}
+    @keyframes hf{0%{opacity:1;transform:translateY(0)scale(.25)}25%{opacity:1;transform:translateY(-50px)scale(1)}100%{opacity:0;transform:translateY(-180px)scale(.5)}}
+    .flash{position:absolute;inset:0;background:#fff;pointer-events:none;z-index:2;opacity:0;transition:opacity .05s steps(2)}
+    .flash.go{opacity:.3;transition:opacity 0s}
+    .exit-btn{position:absolute;bottom:16px;left:16px;z-index:5;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.15);border-radius:0;color:rgba(255,255,255,.4);font-family:'Courier New',monospace;font-size:18px;font-weight:900;cursor:pointer;text-decoration:none;box-shadow:3px 3px 0 rgba(0,0,0,.3)}
+    .exit-btn:active{background:rgba(255,255,255,.14);color:#fff;transform:translate(1px,1px);box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+    .pixel-overlay{position:absolute;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.03) 3px,rgba(0,0,0,.03) 4px)}
+  </style>
 </head>
 <body>
 <canvas id="c"></canvas>

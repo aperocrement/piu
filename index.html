@@ -17,37 +17,37 @@
       width: 100%; height: 100%;
       background: #0a0a16;
       overflow: hidden;
-      font-family: 'Courier New', monospace;
-      -webkit-tap-highlight-color: transparent;
+      font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated;
+      -webkit-tap-highlight-color: transparent; text-rendering: optimizeSpeed; -webkit-font-smoothing: none;
       user-select: none; -webkit-user-select: none;
     }
     canvas { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated; }
     .ui-layer { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 32px 20px; pointer-events: none; }
     .ui-layer a, .ui-layer button { pointer-events: auto; }
     .logo-block { display: flex; gap: 4px; margin-bottom: 4px; }
-    .logo-char { font-family: 'Courier New', monospace; font-size: 40px; font-weight: 900; letter-spacing: 2px; color: #00c6ff; text-shadow: 2px 2px 0 #006088, 4px 4px 0 rgba(0,0,0,.3); line-height: 1; }
+    .logo-char { font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 40px; font-weight: 900; letter-spacing: 2px; color: #00c6ff; text-shadow: 2px 2px 0 #006088, 4px 4px 0 rgba(0,0,0,.3); line-height: 1; }
     .logo-char.pink { color: #ff6090; text-shadow: 2px 2px 0 #882040, 4px 4px 0 rgba(0,0,0,.3); }
-    .tagline { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700; letter-spacing: 4px; color: rgba(255,255,255,.4); margin: 8px 0 4px; }
-    .subtitle { font-family: 'Courier New', monospace; font-size: 11px; color: rgba(255,255,255,.25); letter-spacing: 2px; margin-bottom: 36px; }
-    .pixel-btn { display: inline-block; padding: 14px 36px; background: #00c6ff; color: #0a0a16; font-family: 'Courier New', monospace; font-size: 18px; font-weight: 900; letter-spacing: 3px; text-decoration: none; border: none; box-shadow: 4px 0 0 #0a0a16, -4px 0 0 #0a0a16, 0 4px 0 #0a0a16, 0 -4px 0 #0a0a16, 6px 6px 0 #006088, 6px 6px 0 2px #0a0a16; cursor: pointer; transition: all .08s; animation: btnBounce 2s ease-in-out infinite; }
+    .tagline { font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 13px; font-weight: 700; letter-spacing: 4px; color: rgba(255,255,255,.4); margin: 8px 0 4px; }
+    .subtitle { font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 11px; color: rgba(255,255,255,.25); letter-spacing: 2px; margin-bottom: 36px; }
+    .pixel-btn { display: inline-block; padding: 14px 36px; background: #00c6ff; color: #0a0a16; font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 18px; font-weight: 900; letter-spacing: 3px; text-decoration: none; border: none; box-shadow: 4px 0 0 #0a0a16, -4px 0 0 #0a0a16, 0 4px 0 #0a0a16, 0 -4px 0 #0a0a16, 6px 6px 0 #006088, 6px 6px 0 2px #0a0a16; cursor: pointer; transition: all .08s; animation: btnBounce 2s ease-in-out infinite; }
     @keyframes btnBounce { 0%,100%{transform:translateY(0)} 3%,7%{transform:translateY(-4px)} 5%{transform:translateY(0)} }
     .pixel-btn:active { transform: translate(2px, 2px); box-shadow: 2px 0 0 #0a0a16, -2px 0 0 #0a0a16, 0 2px 0 #0a0a16, 0 -2px 0 #0a0a16, 4px 4px 0 #006088, 4px 4px 0 2px #0a0a16; }
     .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; max-width: 280px; margin-top: 36px; }
-    .mode-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 10px; background: rgba(255,255,255,.03); border: 2px solid rgba(255,255,255,.08); color: rgba(255,255,255,.45); font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-decoration: none; cursor: pointer; transition: all .1s; }
+    .mode-card { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 10px; background: rgba(255,255,255,.03); border: 2px solid rgba(255,255,255,.08); color: rgba(255,255,255,.45); font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-decoration: none; cursor: pointer; transition: all .1s steps(2); }
     .mode-card:active { border-color: #00c6ff; color: #00c6ff; background: rgba(0,198,255,.06); }
     .mode-icon { font-size: 22px; line-height: 1; }
     .info-footer { position: absolute; bottom: 22px; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; left: 50%; transform: translateX(-50%); }
-    .info-row { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 3px; color: rgba(255,255,255,.2); }
+    .info-row { font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 10px; letter-spacing: 3px; color: rgba(255,255,255,.2); }
     .picker-overlay { position: absolute; inset: 0; z-index: 10; background: rgba(10,10,22,.96); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 40px 24px; }
     .picker-overlay.show { display: flex; }
-    .picker-title { font-family: 'Courier New', monospace; font-size: 18px; font-weight: 900; letter-spacing: 4px; color: #00c6ff; margin-bottom: 12px; }
-    .choice-card { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 260px; padding: 14px 18px; background: rgba(255,255,255,.03); border: 2px solid rgba(255,255,255,.08); color: rgba(255,255,255,.6); font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-decoration: none; cursor: pointer; transition: all .1s; }
+    .picker-title { font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 18px; font-weight: 900; letter-spacing: 4px; color: #00c6ff; margin-bottom: 12px; }
+    .choice-card { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 260px; padding: 14px 18px; background: rgba(255,255,255,.03); border: 2px solid rgba(255,255,255,.08); color: rgba(255,255,255,.6); font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-decoration: none; cursor: pointer; transition: all .1s steps(2); }
     .choice-card:active { border-color: #00c6ff; color: #00c6ff; }
     .cc-icon { font-size: 22px; width: 32px; text-align: center; }
     .cc-name { flex: 1; }
     .cc-arrow { color: rgba(255,255,255,.2); }
-    .pixel-back { position: absolute; top: 16px; left: 16px; background: none; border: none; color: rgba(255,255,255,.35); font-family: 'Courier New', monospace; font-size: 16px; cursor: pointer; }
-    .pixel-cancel { margin-top: 8px; background: none; border: 2px solid rgba(255,255,255,.1); color: rgba(255,255,255,.3); padding: 8px 24px; font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: 2px; cursor: pointer; }
+    .pixel-back { position: absolute; top: 16px; left: 16px; background: none; border: none; color: rgba(255,255,255,.35); font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 16px; cursor: pointer; }
+    .pixel-cancel { margin-top: 8px; background: none; border: 2px solid rgba(255,255,255,.1); color: rgba(255,255,255,.3); padding: 8px 24px; font-family: 'Courier New', monospace; text-rendering: optimizeSpeed; -webkit-font-smoothing: none; image-rendering: pixelated; font-size: 12px; letter-spacing: 2px; cursor: pointer; }
     @media (max-width: 380px) { .logo-char { font-size: 32px; } .mode-grid { max-width: 240px; gap: 6px; } }
   </style>
 </head>
