@@ -28,6 +28,56 @@ var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
 var msgText='',msgTimer=0,msgColor='#fff';
 var t1=null,t2=null,tx=null;
 
+// === ADVERTISEMENTS ===
+// 去 mp.weixin.qq.com → 流量主 → 广告管理 创建广告位，替换下面的 adUnitId
+var bannerAd = null;
+var interstitialAd = null;
+var rewardedVideoAd = null;
+
+function initAds() {
+  // Banner 广告（底部常驻）
+  try {
+    bannerAd = wx.createBannerAd({
+      adUnitId: 'adunit-xxxxxxxxxxxxxxxx', // TODO: 替换为你的 Banner 广告位 ID
+      style: { left: 0, top: H - 60, width: W }
+    });
+    bannerAd.onError(function(err){ console.log('Banner error:', err) });
+  } catch(e) {}
+
+  // 插屏广告（首页→游戏之间弹出）
+  try {
+    interstitialAd = wx.createInterstitialAd({
+      adUnitId: 'adunit-xxxxxxxxxxxxxxxx' // TODO: 替换为你的插屏广告位 ID
+    });
+    interstitialAd.onError(function(err){ console.log('Interstitial error:', err) });
+  } catch(e) {}
+
+  // 激励视频（结算页「看视频继续玩」）
+  try {
+    rewardedVideoAd = wx.createRewardedVideoAd({
+      adUnitId: 'adunit-xxxxxxxxxxxxxxxx' // TODO: 替换为你的激励视频广告位 ID
+    });
+  } catch(e) {}
+}
+
+function showBanner() {
+  if (bannerAd) try { bannerAd.show() } catch(e) {}
+}
+function hideBanner() {
+  if (bannerAd) try { bannerAd.hide() } catch(e) {}
+}
+function showInterstitial() {
+  if (interstitialAd) try { interstitialAd.show() } catch(e) { if (g) startGame(g.mode, g.diff) }
+}
+function showRewarded(callback) {
+  if (!rewardedVideoAd) { callback && callback(false); return }
+  rewardedVideoAd.onClose(function(res) {
+    if (res && res.isEnded) { callback && callback(true) }
+    else { callback && callback(false) }
+  });
+  try { rewardedVideoAd.show() } catch(e) { callback && callback(false) }
+}
+
 // === LAUNCH PARAMS ===
 var gm='ai',df='medium';
 try{var lopts=wx.getLaunchOptionsSync();if(lopts.query){gm=lopts.query.mode||'ai';df=lopts.query.diff||'medium'}}catch(e){}
@@ -309,10 +359,11 @@ function drawSpeaker(cx,cy,on){
 function drawGO(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   ct.fillStyle='#f0f0f0';ct.font='bold 26px monospace';ct.textAlign='center';
-  ct.fillText(goData.w===1?'YOU WIN!':'YOU LOSE',W/2,H/2-60);
-  ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-10);
-  drawBtn('RETRY',W/2-100,H/2+40,200,44,'#00c6ff',true);
-  drawBtn('QUIT',W/2-60,H/2+96,120,36,'#555',false);
+  ct.fillText(goData.w===1?'YOU WIN!':'YOU LOSE',W/2,H/2-70);
+  ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-20);
+  drawBtn('RETRY',W/2-100,H/2+20,200,44,'#00c6ff',true);
+  drawBtn('REVIVE',W/2-100,H/2+72,200,44,'#ffd740',true);
+  drawBtn('QUIT',W/2-60,H/2+128,120,36,'#555',false);
 }
 function drawExitConfirm(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
@@ -330,6 +381,7 @@ function startGame(mode,diff){
   ig();pts=[];sk2=0;
   msgText='';msgTimer=0;
   screen='playing';
+  showBanner();
   iac();
 }
 
@@ -347,7 +399,7 @@ wx.onTouchStart(function(e){
     if(showExit){showExit=false;return}showExit=true;return;
   }
   if(showExit){
-    if(hitTest(cx,cy,W/2-100,H/2+10,90,40)){screen='home';showExit=false;goData=null;g=mk();ig();return}
+    if(hitTest(cx,cy,W/2-100,H/2+10,90,40)){hideBanner();screen='home';showExit=false;goData=null;g=mk();ig();return}
     if(hitTest(cx,cy,W/2+10,H/2+10,90,40)){showExit=false;return}return;
   }
 
@@ -365,8 +417,9 @@ wx.onTouchStart(function(e){
 
   // Game over
   if(screen==='gameover'){
-    if(hitTest(cx,cy,W/2-100,H/2+40,200,44)){screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;return}
-    if(hitTest(cx,cy,W/2-60,H/2+96,120,36)){screen='home';g=mk();ig();goData=null;return}
+    if(hitTest(cx,cy,W/2-100,H/2+20,200,44)){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();return}
+    if(hitTest(cx,cy,W/2-100,H/2+72,200,44)){showRewarded(function(watched){if(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner()}});return}
+    if(hitTest(cx,cy,W/2-60,H/2+128,120,36)){hideBanner();screen='home';g=mk();ig();goData=null;return}
     return;
   }
 
@@ -397,4 +450,4 @@ wx.onTouchEnd(function(e){
 function lp(){try{if(g){ug();up(16)}dr();homeBeat()}catch(e){}}
 setInterval(lp,16);
 setInterval(function(){spu()},PUI);
-g=mk();ig();
+g=mk();ig();initAds();
