@@ -217,13 +217,14 @@ function gl(sc){
   g.phase='goal';g.ball.vx=0;g.ball.vy=0;
   if(g.couple){if(sc===2){g.sc[1]++;g.rsc[1]++}else{g.rsc[0]+=.5;g.sc[0]=Math.floor(g.rsc[0])}}
   else{var bonus=combo>=10?2:combo>=5?1:0;g.sc[sc-1]+=1+bonus}
-  g.ls=sc;g.hits=0;g.pus=[];combo=0;rally=0;
+  g.ls=sc;g.hits=0;g.pus=[];rally=0;
   isMatchPoint=(g.sc[0]===WIN-1&&g.sc[1]===WIN-1);
   sk2=12;spt(g.ball.x,g.ball.y,45,sc===1?'blue':'red');
   if(sc===1){sfxG();vg()}else{sfxL()}
-  var bonus=combo>=10?2:combo>=5?1:0;
-  flipOld=g.sc[sc-1]-1-bonus;flipSide=sc;flipTimer=60;msgTimer=1800;
-  if(combo>=10)msgText='PERFECT x2';else if(combo>=5)msgText='GREAT +1';else msgText='+1';
+  // Combo display (bonus already added above)
+  flipOld=g.sc[sc-1]-1-(combo>=10?2:combo>=5?1:0);flipSide=sc;flipTimer=55;
+  if(combo>=10)msgText='+3';else if(combo>=5)msgText='+2';else msgText='+1';
+  combo=0;
   var wt=g.couple?(sc===2?CFW:CMW):WIN;
   var chk=g.couple?(sc===2?g.sc[1]:Math.floor(g.rsc[0])):g.sc[sc-1];
   if(chk>=wt){setTimeout(function(){screen='gameover';goData={w:sc};if(sc===1)sfxWin();else sfxLose()},1400)}
