@@ -158,6 +158,7 @@ function up(dt){
   if(puActive){puTimer--;if(puTimer<=0)puActive=null}
   // Combo decay + match point speed
   if(comboTimer>0){comboTimer--;if(comboTimer<=0)combo=0}
+  if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)msgText=''}
   // AI power-up auto-use
   if(aiStored){aiTimer++;if(aiTimer>120){aiActivate();aiTimer=0}}
   if(g.phase!=='playing')return;
@@ -315,6 +316,11 @@ function dr(){
       ct.fillText('AI: '+(aiStored==='extend'?'加长板':'大力球'),W/2,topSafe+88)}
   }
 
+  // Feedback popup (太远 etc)
+  if(msgTimer>0&&screen==='playing'&&!flipTimer){
+    ct.fillStyle=msgColor;ct.font='bold 18px monospace';ct.textAlign='center';
+    ct.fillText(msgText,W/2,H*.42);
+  }
   // Score flip animation
   if(flipTimer>0&&screen==='playing'){
     flipTimer--;
@@ -463,12 +469,15 @@ function startGame(mode,diff){
 // === Double-tap power-up activation ===
 function activatePU(){
   if(!puStored||puActive)return;
-  iac();sfxPU();
+  iac();
   if(puStored==='speed'){
-    var b=g.ball;b.vy=(b.vy>0?-1:1)*Math.abs(b.vy)*2.8;b.vx*=1.5;b.st=.6;b.sa=.6;
-    sk2=10;sfxSmash();spt(b.x,b.y,25,'blue');puStored=null;
+    // 大力球只在球靠近玩家板子时生效
+    var b=g.ball,padY=H-PY,distToPad=Math.abs(b.y-padY);
+    if(distToPad>H*.4){msgText='太远';msgColor='#ff5252';msgTimer=600;sfxL();return}
+    b.vy=(b.vy>0?-1:1)*Math.abs(b.vy)*2.8;b.vx*=1.5;b.st=.6;b.sa=.6;
+    sk2=8;sfxSmash();spt(b.x,b.y,25,'blue');puStored=null;
   }else{
-    puActive=puStored;puStored=null;puTimer=180;
+    puActive=puStored;puStored=null;puTimer=180;sfxPU();
   }
 }
 function aiActivate(){
