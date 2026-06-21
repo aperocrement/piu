@@ -4,6 +4,8 @@ var info = wx.getSystemInfoSync();
 var dpr = Math.min(info.pixelRatio || 2, 2);
 var W = info.screenWidth || info.windowWidth || 375;
 var H = info.screenHeight || info.windowHeight || 667;
+var topSafe = (info.statusBarHeight || 44) + 8;
+var bottomSafe = (info.safeArea ? H - info.safeArea.bottom : 34) + 8;
 var canvas = wx.createCanvas();
 canvas.width = W * dpr;
 canvas.height = H * dpr;
@@ -212,13 +214,14 @@ function dr(){
 
   // === PLAYING HUD ===
   if(screen==='playing'&&g){
+    var hudY=topSafe+8;
     ct.fillStyle='#f0f0f0';ct.font='bold 22px monospace';ct.textAlign='left';
-    ct.fillText(g.sc[0],16,40);
-    ct.textAlign='right';ct.fillText(g.sc[1],W-16,40);
+    ct.fillText(g.sc[0],16,hudY+22);
+    ct.textAlign='right';ct.fillText(g.sc[1],W-16,hudY+22);
     ct.textAlign='center';ct.fillStyle='#ccc';ct.font='bold 13px monospace';
-    ct.fillText('ROUND '+g.round,W/2,30);
+    ct.fillText('ROUND '+g.round,W/2,hudY+10);
     // Speaker icon top-right
-    drawSpeaker(W-30,28,soundOn);
+    drawSpeaker(W-30,hudY+8,soundOn);
   }
 
   // Center message
@@ -233,11 +236,12 @@ function dr(){
   // Exit confirm
   if(showExit)drawExitConfirm();
 
-  // Exit button (only in playing)
+  // Exit button (only in playing, above home indicator)
   if(screen==='playing'){
+    var exY=H-bottomSafe-36;
     ct.fillStyle='#0a0a1a';ct.strokeStyle='#555';ct.lineWidth=2;
-    ct.fillRect(12,H-48,36,36);ct.strokeRect(12,H-48,36,36);
-    ct.fillStyle='#888';ct.font='bold 16px monospace';ct.textAlign='center';ct.fillText('X',30,H-24);
+    ct.fillRect(12,exY,36,36);ct.strokeRect(12,exY,36,36);
+    ct.fillStyle='#888';ct.font='bold 16px monospace';ct.textAlign='center';ct.fillText('X',30,exY+24);
   }
 }
 
@@ -335,10 +339,11 @@ wx.onTouchStart(function(e){
   var touch=e.touches[0];
   var cx=touch.clientX,cy=touch.clientY;
 
+  var hudY2=topSafe+8, exY2=H-bottomSafe-36;
   // Speaker toggle (playing screen top-right)
-  if(screen==='playing'&&hitTest(cx,cy,W-44,14,44,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
+  if(screen==='playing'&&hitTest(cx,cy,W-44,hudY2-6,44,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
   // Exit button
-  if(screen==='playing'&&hitTest(cx,cy,12,H-48,36,36)){
+  if(screen==='playing'&&hitTest(cx,cy,12,exY2,36,36)){
     if(showExit){showExit=false;return}showExit=true;return;
   }
   if(showExit){
