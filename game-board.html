@@ -310,7 +310,7 @@ function dp(pu){
 }
 
 // === HUD ===
-function sm(sc){const m=document.getElementById('msg');if(sc===1){m.textContent='PIU!';m.style.color='#00c6ff'}else{m.textContent='NO..';m.style.color='#e04060'}m.className='msg show';const el=document.getElementById(sc===1?'s1':'s2');el.classList.remove('score-flip');void el.offsetWidth;el.classList.add('score-flip');setTimeout(()=>{m.classList.remove('show')},1800)}
+function sm(sc){const m=document.getElementById('msg');if(sc===1){m.textContent='+1';m.style.color='#00c6ff'}else{m.textContent='+1';m.style.color='#e04060'}m.className='msg show score-flip';setTimeout(()=>m.classList.remove('show'),1500)}
 function showExitConfirm(){document.getElementById('exitConfirm').classList.add('show')}
 function hideExitConfirm(){document.getElementById('exitConfirm').classList.remove('show')}
 function ucd(){const cd=document.getElementById('cd');if(g.cd>0){cd.textContent=g.cd;cd.classList.add('show');cd.style.color='#f0f0f0';sfxCD();vcd();setTimeout(()=>cd.classList.remove('show'),700)}else{cd.textContent='GO!';cd.classList.add('show');sfxGO();vGO();flashScreen();setTimeout(()=>cd.classList.remove('show'),600)}}
