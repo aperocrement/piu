@@ -30,6 +30,7 @@ var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=5.5,BM2=10,PUS=3
 // === GAME STATE ===
 var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
 var combo=0,comboTimer=0,isMatchPoint=false;
+var rally=0, hitStop=0;
 var msgText='',msgTimer=0,msgColor='#fff';
 // Power-up queue system: collect → store → double-tap to activate
 var puStored=null,puActive=null,puTimer=0,aiStored=null,aiTimer=0,lastTap=0,tapCount=0;
@@ -152,6 +153,7 @@ function up(dt){
   if(!g)return;
   var b=g.ball,pp=g.pad,ai=g.ai;
   if(sk2>0)sk2*=.82;if(sk2<.05)sk2=0;
+  if(hitStop>0){hitStop--;return} // hitstop freeze
   b.sa+=(b.st-b.sa)*.28;
   // Extend timer (speed is one-shot, no timer)
   if(puActive){puTimer--;if(puTimer<=0)puActive=null}
@@ -188,8 +190,27 @@ function eh(pad,pl){
   var ang=rx*.75;var sp=Math.min(Math.sqrt(b.vx*b.vx+b.vy*b.vy)*1.06,BM2);
   b.vx=Math.sin(ang)*sp;b.vy=(pl===1?-1:1)*Math.abs(Math.cos(ang)*sp);
   if(pl===1)b.y=pad.y-b.r*b.sa-1;else b.y=pad.y+pad.h+b.r*b.sa+1;
+  // Squash & stretch
   b.st=.7;setTimeout(function(){if(g)g.ball.st=1.35},50);setTimeout(function(){if(g)g.ball.st=1.0},160);
-  if(screen==='playing'){spt(b.x,b.y,18,pl===1?'blue':'red',pl===1?-Math.PI/2:Math.PI/2);sk2=Math.min(sk2+2,6);g.hits++;combo++;comboTimer=90;sfxH();vh();}
+  if(screen!=='playing')return;
+  // Sweet spot detection
+  var absRx=Math.abs(rx);
+  var isPerfect=absRx<.15,isEdge=absRx>.75;
+  // Hitstop on perfect hit
+  if(isPerfect)hitStop=5;
+  // Particles: golden for perfect, sparks for edge
+  var pty=isPerfect?'wall':pl===1?'blue':'red';
+  var ptn=isPerfect?30:isEdge?12:18;
+  spt(b.x,b.y,ptn,pty,pl===1?-Math.PI/2:Math.PI/2);
+  if(isEdge)spt(b.x,b.y,8,'orange',pl===1?-Math.PI*1.2:Math.PI*0.2);
+  // Rally count
+  rally++;
+  // Score display text
+  if(isPerfect){msgText='PERFECT';msgColor='#ffd740';msgTimer=800}
+  else if(isEdge){msgText='EDGE!';msgColor='#ff5252';msgTimer=600}
+  sk2=Math.min(sk2+(isPerfect?4:2),isPerfect?10:6);
+  g.hits++;combo++;comboTimer=90;sfxH();vh();
+  if(isPerfect){var b2=b;setTimeout(function(){b2.vx*=1.15;b2.vy*=1.15},80)}
 }
 function epu(pu){
   var b=g.ball;
@@ -207,7 +228,7 @@ function gl(sc){
   g.phase='goal';g.ball.vx=0;g.ball.vy=0;
   if(g.couple){if(sc===2){g.sc[1]++;g.rsc[1]++}else{g.rsc[0]+=.5;g.sc[0]=Math.floor(g.rsc[0])}}
   else{var bonus=combo>=10?2:combo>=5?1:0;g.sc[sc-1]+=1+bonus}
-  g.ls=sc;g.hits=0;g.pus=[];combo=0;
+  g.ls=sc;g.hits=0;g.pus=[];combo=0;rally=0;
   isMatchPoint=(g.sc[0]===WIN-1&&g.sc[1]===WIN-1);
   sk2=12;spt(g.ball.x,g.ball.y,45,sc===1?'blue':'red');
   if(sc===1){sfxG();vg()}else{sfxL()}
@@ -295,9 +316,11 @@ function dr(){
     ct.fillText(g.sc[0]+'  :  '+g.sc[1],W/2,topSafe+42);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
     ct.fillText('ROUND '+g.round,W/2,topSafe+60);
+    // Rally counter
+    if(rally>=3){ct.fillStyle='#888';ct.font='bold 10px monospace';ct.textAlign='center';ct.fillText(rally+' SHOTS',W/2,topSafe+92)}
     // Combo counter
     if(combo>=3){var comboText=combo+'x';var comboC=combo>=10?'#ff5252':combo>=5?'#ffd740':'#fff';
-      ct.fillStyle=comboC;ct.font='bold '+(16+Math.min(combo,10))+'px monospace';ct.fillText(comboText,W/2,topSafe+90)}
+      ct.fillStyle=comboC;ct.font='bold '+(16+Math.min(combo,10))+'px monospace';ct.fillText(comboText,W/2,topSafe+106)}
     // Match point
     if(isMatchPoint){ct.fillStyle='#ff5252';ct.font='bold 12px monospace';ct.fillText('MATCH POINT',W/2,topSafe+105)}
     // Power-up indicators
@@ -309,6 +332,11 @@ function dr(){
       ct.fillText('AI: '+(aiStored==='extend'?'加长板':'大力球'),W/2,topSafe+88)}
   }
 
+  // PERFECT/EDGE popup
+  if(msgTimer>0&&screen==='playing'&&!flipTimer){
+    ct.fillStyle=msgColor;ct.font='bold 20px monospace';ct.textAlign='center';
+    ct.fillText(msgText,W/2,H*.4-Math.sin(msgTimer/100)*8);
+  }
   // Score flip animation
   if(flipTimer>0&&screen==='playing'){
     flipTimer--;
@@ -448,7 +476,8 @@ function startGame(mode,diff){
   ig();pts=[];sk2=0;
   flipTimer=0;flipSide=0;
   puStored=null;puActive=null;puTimer=0;aiStored=null;aiTimer=0;
-  combo=0;comboTimer=0;isMatchPoint=false;  screen='playing';
+  combo=0;comboTimer=0;isMatchPoint=false;rally=0;hitStop=0;
+  screen='playing';
   showBanner();
   iac();
 }
