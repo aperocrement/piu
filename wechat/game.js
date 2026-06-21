@@ -347,7 +347,7 @@ wx.onTouchStart(function(e){
     if(showExit){showExit=false;return}showExit=true;return;
   }
   if(showExit){
-    if(hitTest(cx,cy,W/2-100,H/2+10,90,40)){wx.exitMiniProgram();return}
+    if(hitTest(cx,cy,W/2-100,H/2+10,90,40)){screen='home';showExit=false;goData=null;g=mk();ig();return}
     if(hitTest(cx,cy,W/2+10,H/2+10,90,40)){showExit=false;return}return;
   }
 
