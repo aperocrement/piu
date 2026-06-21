@@ -408,8 +408,8 @@ wx.onTouchEnd((e) => {
 });
 
 // === NETWORK STUBS (simplified for WeChat) ===
-function cr() { showLobby=false; alert('创建房间需要后端支持') }
-function jr() { showLobby=false; alert('加入房间需要后端支持') }
+function cr() { showLobby=false; wx.showToast({title:'Coming soon',icon:'none'}) }
+function jr() { showLobby=false; wx.showToast({title:'Coming soon',icon:'none'}) }
 
 // === RESTART ===
 function rs() { showGameOver=false; goData=null; g=mk(); pts=[]; sk=0; ig(); }
