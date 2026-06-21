@@ -31,7 +31,7 @@ var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30
 var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
 var msgText='',msgTimer=0,msgColor='#fff';
 // Power-up queue system: collect → store → double-tap to activate
-var puQueue=[],puActive=null,puTimer=0,lastTap=0,tapCount=0;
+var puQueue=[],puActive=null,puTimer=0,puSel=0,lastTap=0,tapCount=0;
 var flipSide=0,flipTimer=0,flipOld=0; // score flip animation
 var t1=null,t2=null,tx=null;
 
@@ -285,10 +285,21 @@ function dr(){
     ct.fillText(g.sc[0]+'  :  '+g.sc[1],W/2,topSafe+42);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
     ct.fillText('ROUND '+g.round,W/2,topSafe+60);
-    // Power-up queue + active indicator
-    if(puQueue.length>0&&!puActive){ct.fillStyle='#ffd740';ct.font='bold 10px monospace';
-      ct.fillText('2xTAP: '+puQueue.map(function(t){return t==='extend'?'WIDE':'FAST'}).join(', '),W/2,topSafe+76)}
-    if(puActive){ct.fillStyle='#ffd740';ct.font='bold 11px monospace';
+    // Power-up icons — tap to select, double-tap to activate
+    if(puQueue.length>0&&!puActive){
+      for(var qi=0;qi<puQueue.length;qi++){
+        var qx=W/2+(qi-(puQueue.length-1)/2)*30,qy=topSafe+74;
+        var isSel=qi===puSel;
+        ct.fillStyle=isSel?'#ffd740':'#444';
+        ct.fillRect(qx-10,qy-8,20,16);
+        ct.strokeStyle=isSel?'#ffd740':'#555';ct.lineWidth=2;ct.strokeRect(qx-10,qy-8,20,16);
+        ct.fillStyle='#0a0a1a';ct.font='bold 7px monospace';ct.textAlign='center';
+        ct.fillText(puQueue[qi]==='extend'?'W':'F',qx,qy+5);
+      }
+      ct.fillStyle='#888';ct.font='bold 8px monospace';ct.textAlign='center';
+      ct.fillText('TAP SEL 2x GO',W/2,qy+24);
+    }
+    if(puActive){ct.fillStyle='#ffd740';ct.font='bold 11px monospace';ct.textAlign='center';
       ct.fillText((puActive==='extend'?'WIDE':'SPEED')+' '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
   }
 
@@ -438,9 +449,9 @@ function startGame(mode,diff){
 // === Double-tap power-up activation ===
 function activatePU(){
   if(puQueue.length===0||puActive)return;
-  var type=puQueue.shift();
+  var type=puQueue.splice(puSel,1)[0];
   puActive=type;puTimer=180; // 3 seconds
-  sfxPU();
+  puSel=0;  sfxPU();
   if(type==='speed'){var b=g.ball;b.vy=(b.vy>0?-1:1)*Math.abs(b.vy)*1.5} // boost toward opponent
 }
 
@@ -487,6 +498,13 @@ wx.onTouchStart(function(e){
   }
 
   if(!g||g.phase!=='playing'||screen!=='playing')return;
+  // Power-up icon tap: select different power-up
+  if(puQueue.length>1&&!puActive){
+    for(var qi2=0;qi2<puQueue.length;qi2++){
+      var qx2=W/2+(qi2-(puQueue.length-1)/2)*30,qy2=topSafe+66;
+      if(hitTest(cx,cy,qx2-12,qy2-8,24,20)){puSel=qi2;return}
+    }
+  }
   // Double-tap detection for power-up activation
   var now=Date.now();
   if(now-lastTap<350&&tapCount===1){activatePU();tapCount=0}
