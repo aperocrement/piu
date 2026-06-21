@@ -462,11 +462,12 @@ function drawExitConfirm(){
 }
 function drawHelp(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
-  ct.fillStyle='#f0f0f0';ct.font='bold 18px monospace';ct.textAlign='center';
-  ct.fillText('怎么玩',W/2,topSafe+30);
   var lines=['拖拽底部挡板 拦截弹球','球出底线 对方得分','先到5分获胜','','黄色方块 = 加长挡板','蓝色方块 = 大力击球','双击屏幕 使用道具','','球到板子正中 弹回更快','连续接球 得分翻倍'];
+  var startY=H*.5-lines.length*11;
+  ct.fillStyle='#f0f0f0';ct.font='bold 18px monospace';ct.textAlign='center';
+  ct.fillText('怎么玩',W/2,startY-16);
   ct.fillStyle='#888';ct.font='12px monospace';
-  for(var i=0;i<lines.length;i++){ct.fillText(lines[i],W/2,topSafe+70+i*22)}
+  for(var i=0;i<lines.length;i++){ct.fillText(lines[i],W/2,startY+18+i*22)}
   drawBtn('知道了',W/2-50,H-bottomSafe-80,100,36,'#00c6ff',true);
 }
 function hitTest(x,y,rx,ry,rw,rh){return x>=rx&&x<=rx+rw&&y>=ry&&y<=ry+rh}
