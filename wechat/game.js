@@ -31,7 +31,7 @@ var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30
 var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
 var msgText='',msgTimer=0,msgColor='#fff';
 // Power-up queue system: collect → store → double-tap to activate
-var puStored=null,puActive=null,puTimer=0,lastTap=0,tapCount=0;
+var puStored=null,puActive=null,puTimer=0,aiStored=null,aiTimer=0,lastTap=0,tapCount=0;
 var flipSide=0,flipTimer=0,flipOld=0; // score flip animation
 var t1=null,t2=null,tx=null;
 
@@ -139,7 +139,7 @@ function sfxCD(){if(!soundOn)return;bp(200,'sine',.05,.12,null)}
 function sfxGO(){if(!soundOn)return;bp(520,'triangle',.08,.22,2)}
 function sfxWin(){if(!soundOn)return;bp(523,'square',.08,.3,1.5);setTimeout(function(){bp(659,'square',.08,.28,1.4)},120);setTimeout(function(){bp(784,'square',.08,.26,1.3)},240);setTimeout(function(){bp(1047,'square',.10,.4,null)},360)}
 function sfxLose(){if(!soundOn)return;bp(330,'sawtooth',.08,.35,.5);setTimeout(function(){bp(220,'sawtooth',.08,.35,.4)},150);setTimeout(function(){bp(165,'sawtooth',.10,.5,.3)},300)}
-function sfxSmash(){if(!soundOn)return;bp(200,'square',.06,.15,null);bp(80,'sawtooth',.08,.18,null);bp(600,'sine',.05,.10,2)}
+function sfxSmash(){if(!soundOn)return;bp(300,'square',.15,.18,null);bp(100,'sawtooth',.12,.2,null);bp(50,'triangle',.10,.22,null);bp(800,'sine',.08,.12,2);setTimeout(function(){bp(500,'sine',.06,.08,null)},60)}
 
 // === VIBRATION ===
 function vb(p){if(!vibOn)return;try{wx.vibrateShort({type:'light'})}catch(e){}}
@@ -152,9 +152,10 @@ function up(dt){
   var b=g.ball,pp=g.pad,ai=g.ai;
   if(sk2>0)sk2*=.82;if(sk2<.05)sk2=0;
   b.sa+=(b.st-b.sa)*.28;
-  // Power-up timer + speed boost
+  // Extend timer (speed is one-shot, no timer)
   if(puActive){puTimer--;if(puTimer<=0)puActive=null}
-  if(puActive==='speed'&&b.vy<0){b.vy*=1.06;b.vx*=1.06} // boost toward opponent (up = P2)
+  // AI power-up auto-use
+  if(aiStored){aiTimer++;if(aiTimer>120){aiActivate();aiTimer=0}}
   if(g.phase!=='playing')return;
 
   if(g.mode!=='local'&&g.mode!=='couple'){ai.tx=b.x;var d=ai.tx-(ai.x+ai.w/2);var sp=g.diff==='hard'?7:g.diff==='easy'?3:4.8;if(Math.abs(d)>5)ai.x+=d>0?sp:-sp;if(g.diff==='easy')ai.x+=(Math.random()-.5)*4;else if(g.diff==='medium')ai.x+=(Math.random()-.5)*1.8;ai.x=Math.max(0,Math.min(W-ai.w,ai.x))}
@@ -191,7 +192,8 @@ function epu(pu){
   if(pu.type==='grow'){b.r=BR*1.9;b.st=1.9;b.state='grow';spt(pu.x,pu.y,20,'green')}
   else if(pu.type==='shrink'){b.r=BR*.65;b.st=.65;b.state='shrink';spt(pu.x,pu.y,18,'orange')}
   else if(pu.type==='extend'||pu.type==='speed'){
-    puStored=pu.type; // new replaces old
+    if(g.ball.vy<0){aiStored=pu.type;aiTimer=0} // ball going up → AI gets it
+    else{puStored=pu.type} // ball going down → player gets it
     spt(pu.x,pu.y,16,pu.type==='speed'?'blue':'wall');
   }
   b.sa=b.st;sfxPU();vpu();
@@ -286,11 +288,13 @@ function dr(){
     ct.fillText(g.sc[0]+'  :  '+g.sc[1],W/2,topSafe+42);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
     ct.fillText('ROUND '+g.round,W/2,topSafe+60);
-    // Power-up indicator
+    // Power-up indicators
     if(puStored&&!puActive){ct.fillStyle='#ffd740';ct.font='bold 10px monospace';ct.textAlign='center';
-      ct.fillText('双击使用: '+(puStored==='extend'?'加长板':'大力球'),W/2,topSafe+76)}
+      ct.fillText('双击: '+(puStored==='extend'?'加长板':'大力球'),W/2,topSafe+76)}
     if(puActive){ct.fillStyle='#ffd740';ct.font='bold 11px monospace';ct.textAlign='center';
-      ct.fillText((puActive==='extend'?'加长板':'大力球')+' '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
+      ct.fillText('加长板 '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
+    if(aiStored&&g&&g.mode!=='local'){ct.fillStyle='#e04060';ct.font='bold 9px monospace';ct.textAlign='center';
+      ct.fillText('AI: '+(aiStored==='extend'?'加长板':'大力球'),W/2,topSafe+88)}
   }
 
   // Score flip animation
@@ -430,7 +434,7 @@ function startGame(mode,diff){
   g=mk();g.mode=gm;g.diff=df;g.sc=[0,0];g.round=1;
   ig();pts=[];sk2=0;
   flipTimer=0;flipSide=0;
-  puStored=null;puActive=null;puTimer=0;
+  puStored=null;puActive=null;puTimer=0;aiStored=null;aiTimer=0;
   screen='playing';
   showBanner();
   iac();
@@ -439,9 +443,19 @@ function startGame(mode,diff){
 // === Double-tap power-up activation ===
 function activatePU(){
   if(!puStored||puActive)return;
-  puActive=puStored;puStored=null;puTimer=180;
   iac();sfxPU();
-  if(puActive==='speed'){var b=g.ball;b.vy=(b.vy>0?-1:1)*Math.abs(b.vy)*1.5;setTimeout(function(){sfxSmash()},30)}
+  if(puStored==='speed'){
+    var b=g.ball;b.vy=(b.vy>0?-1:1)*Math.abs(b.vy)*2.8;b.vx*=1.5;b.st=.6;b.sa=.6;
+    sk2=10;sfxSmash();spt(b.x,b.y,25,'blue');puStored=null;
+  }else{
+    puActive=puStored;puStored=null;puTimer=180;
+  }
+}
+function aiActivate(){
+  if(!aiStored||puActive)return;
+  if(aiStored==='speed'){var b=g.ball;b.vy=(b.vy<0?-1:1)*Math.abs(b.vy)*2.8;b.vx*=1.5;b.st=.6;b.sa=.6;sk2=6;sfxSmash();spt(b.x,b.y,20,'red')}
+  else{var ai2=g.ai;ai2.w=PW*2;setTimeout(function(){if(g)g.ai.w=PW},3000)}
+  aiStored=null;
 }
 
 // === TOUCH ===
