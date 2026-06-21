@@ -36,6 +36,8 @@ canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%}
 @keyframes hf{0%{opacity:1;transform:translateY(0)scale(.4)rotate(0)}50%{opacity:1;transform:translateY(-100px)scale(1.3)rotate(15deg)}100%{opacity:0;transform:translateY(-220px)scale(.3)rotate(-25deg)}}
 .flash{position:absolute;inset:0;background:#fff;pointer-events:none;z-index:2;opacity:0;transition:opacity .05s}
 .flash.go{opacity:.25;transition:opacity 0s}
+.exit-btn{position:absolute;bottom:20px;left:20px;z-index:5;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:rgba(255,255,255,.4);font-size:20px;cursor:pointer;text-decoration:none}
+.exit-btn:active{background:rgba(255,255,255,.14);color:#fff}
 </style>
 </head>
 <body>
@@ -44,6 +46,7 @@ canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%}
 <div class="hud"><span class="hud-score" id="s1">0</span><div class="hud-center"><div class="hud-round">回合 <span id="rn">1</span></div><div><span id="ml"></span></div><div style="font-size:9px;opacity:.25"><span id="wc"></span></div></div><span class="hud-score" id="s2">0</span></div>
 <div class="msg" id="msg"></div><div class="cd" id="cd"></div>
 <div class="overlay" id="lo"><div style="color:#fff;font-size:28px;font-weight:700">WiFi</div><div style="color:rgba(255,255,255,.5);font-size:14px;text-align:center;max-width:260px;line-height:1.6"></div><div id="lc" style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:280px"><button class="btn btn-p" onclick="cr()" style="width:100%"></button><div id="rcd" style="display:none;text-align:center"><div style="font-size:11px;color:rgba(255,255,255,.35)"></div><div style="font-family:monospace;font-size:52px;font-weight:700;color:#fff;letter-spacing:.08em" id="rct"></div><div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:4px"></div></div></div><div id="lj" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:280px"><input id="jc" type="text" inputmode="numeric" maxlength="4" placeholder="" style="width:100%;padding:12px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:20px;text-align:center;letter-spacing:.12em;outline:none;font-family:monospace"><button class="btn btn-p" onclick="jr()" style="width:100%"></button></div><button class="btn btn-g" onclick="location.href='index.html'"></button></div>
+<a class="exit-btn" href="index.html" title="退出">✕</a>
 <div class="overlay" id="go"><div class="overlay-title" id="gt"></div><div class="overlay-scores"><span id="gs1">0</span><span style="font-size:16px;color:rgba(255,255,255,.35)">:</span><span id="gs2">0</span></div><div class="overlay-sub" id="gsub"></div><button class="btn btn-p" onclick="rs()"></button><button class="btn btn-g" onclick="location.href='index.html'"></button></div>
 <script>
 const cv=document.getElementById('c'),ct=cv.getContext('2d');
@@ -59,7 +62,7 @@ if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.proto
 const BR=22,PW=100,PH=12,PY=70;          // ball radius, paddle
 const GC=18,GR=28;                       // grid cols/rows
 const WS=130,WR=120;                     // gravity well strength/radius (gentle)
-const BS=5.5,BM=12;                      // ball speed, max
+const BS=3.5,BM=8;                       // ball speed (slower start), max
 const PUS=30,PUI=6000,MPU=2;            // powerup size/interval/max
 const WIN=5,CFW=3,CMW=6;                // win scores
 
@@ -68,7 +71,7 @@ let g,af,sk=0,gv=[],gcw,gch,cf=0,tcf=0;
 let pts=[],apts=[],dusts=[];            // event particles, ambient, ball dust
 let ballPulse=0,ballPulseT=0;           // ball aura pulse
 
-function ig(){gcw=W/(GC-1);gch=H/(GR-1);gv=[];for(let r=0;r<GR;r++){gv[r]=[];for(let c=0;c<GC;c++)gv[r][c]={bx:c*gcw,by:r*gch,dx:0,dy:0,rx:0,ry:0}}}  // rx,ry = ripple displacement
+function ig(){gcw=W/(GC-1);gch=H/(GR-1);gv=[];for(let r=0;r<GR;r++){gv[r]=[];for(let c=0;c<GC;c++)gv[r][c]={bx:c*gcw,by:r*gch,dx:0,dy:0}}}
 
 function mk(){
   const cp=gm==='couple';
@@ -89,7 +92,7 @@ sptAmb();
 // === AUDIO ===
 let AC=null;function iac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)}catch(e){}}if(AC&&AC.state==='suspended')AC.resume()}
 function bp(f,ty,d,v,ge){if(!AC)return;try{const t=AC.currentTime,o=AC.createOscillator(),gn=AC.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(ge)o.frequency.linearRampToValueAtTime(f*ge,t+d);gn.gain.setValueAtTime(Math.min(v,.3),t);gn.gain.setValueAtTime(.001,t+d-.01);o.connect(gn);gn.connect(AC.destination);o.start(t);o.stop(t+d)}catch(e){}}
-function sfxH(){bp(240,'sine',.07,.16,2.5);bp(100,'triangle',.05,.1,null)};function sfxW(){bp(130,'square',.04,.06,null)};function sfxG(){bp(440,'sine',.08,.22,1.8);setTimeout(()=>bp(660,'sine',.07,.18,1.5),70);setTimeout(()=>bp(880,'sine',.05,.16,null),140)};function sfxL(){bp(180,'sawtooth',.07,.28,.4)};function sfxPU(){bp(600,'sine',.04,.09,2);setTimeout(()=>bp(900,'sine',.04,.09,1.5),50);setTimeout(()=>bp(1200,'sine',.03,.1,null),100)};function sfxCD(){bp(200,'sine',.05,.12,null)};function sfxGO(){bp(520,'triangle',.08,.22,2)};function sfxWin(){bp(523,'sine',.12,.26,1.3);setTimeout(()=>bp(659,'sine',.10,.26,1.3),130);setTimeout(()=>bp(784,'sine',.08,.35,null),260)};function sfxLose(){bp(200,'sawtooth',.08,.35,.5)}
+function sfxH(){bp(800,'sine',.06,.22,1.8);bp(400,'sine',.03,.10,2.2)};function sfxW(){bp(130,'square',.04,.06,null)};function sfxG(){bp(440,'sine',.08,.22,1.8);setTimeout(()=>bp(660,'sine',.07,.18,1.5),70);setTimeout(()=>bp(880,'sine',.05,.16,null),140)};function sfxL(){bp(180,'sawtooth',.07,.28,.4)};function sfxPU(){bp(600,'sine',.04,.09,2);setTimeout(()=>bp(900,'sine',.04,.09,1.5),50);setTimeout(()=>bp(1200,'sine',.03,.1,null),100)};function sfxCD(){bp(200,'sine',.05,.12,null)};function sfxGO(){bp(520,'triangle',.08,.22,2)};function sfxWin(){bp(523,'sine',.12,.26,1.3);setTimeout(()=>bp(659,'sine',.10,.26,1.3),130);setTimeout(()=>bp(784,'sine',.08,.35,null),260)};function sfxLose(){bp(200,'sawtooth',.08,.35,.5)}
 
 // === VIBRATION ===
 function vb(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
@@ -106,7 +109,7 @@ function up(dt){
   b.sa+=(b.st-b.sa)*.28;
 
   if(g.phase==='cd'){g.pt+=dt;if(g.pt>1000){g.pt=0;g.cd--;ucd();if(g.cd<=0){g.phase='playing';hcd();if(g.ls)b.vy=g.ls===1?BS:-BS}}return}
-  if(g.phase==='goal'){g.pt+=dt;if(g.pt>1500){g.phase='cd';g.pt=0;g.cd=3;rb();ucd()}return}
+  if(g.phase==='goal'){g.pt+=dt;if(g.pt>2600){g.phase='cd';g.pt=0;g.cd=3;rb();ucd()}return}
   if(g.phase!=='playing')return;
 
   if(g.mode!=='local'&&g.mode!=='couple'&&g.mode!=='nh'&&g.mode!=='ng'){ai.tx=b.x;const d=ai.tx-(ai.x+ai.w/2);const sp=g.diff==='hard'?7:g.diff==='easy'?3:4.8;if(Math.abs(d)>5)ai.x+=Math.sign(d)*sp;if(g.diff==='easy')ai.x+=(Math.random()-.5)*4;else if(g.diff==='medium')ai.x+=(Math.random()-.5)*1.8;ai.x=Math.max(0,Math.min(W-ai.w,ai.x))}
@@ -159,15 +162,19 @@ function epu(pu){
 function updateCF(){if(!g)return;const ts=g.sc[0]+g.sc[1];tcf=Math.min(1,Math.min(g.hits*.04,.5)+Math.min(ts*.08,.5))}
 function gl(sc){
   g.phase='goal';g.pt=0;
+  // Freeze ball for dramatic pause
+  g.ball.vx=0;g.ball.vy=0;
   if(g.couple){if(sc===2){g.sc[1]++;g.rsc[1]++}else{g.rsc[0]+=.5;g.sc[0]=Math.floor(g.rsc[0])}}
   else{g.sc[sc-1]++}
   g.ls=sc;g.hits=0;g.pus=[];tcf=Math.max(0,tcf-.15);
-  sk=12;spt(g.ball.x,g.ball.y,45,sc===1?'blue':'red');  // score explosion
+  sk=12;spt(g.ball.x,g.ball.y,55,sc===1?'blue':'red');
+  // Arcade-style flash sequence: flash on, off, on
+  flashScreen();setTimeout(()=>flashScreen(),200);setTimeout(()=>flashScreen(),400);
   if(sc===1){sfxG();vg()}else{sfxL();if(g.couple)shrt(g.ball.x,g.ball.y)}
   sm(sc);uh();
   const wt=g.couple?(sc===2?CFW:CMW):WIN;
   const chk=g.couple?(sc===2?g.sc[1]:Math.floor(g.rsc[0])):g.sc[sc-1];
-  if(chk>=wt){setTimeout(()=>{g.phase='gameover';sgo(sc)},1200)}
+  if(chk>=wt){setTimeout(()=>{g.phase='gameover';sgo(sc)},1400)}
   g.round++
 }
 function rb(){const b=g.ball;b.x=W/2;b.y=H/2;b.vx=(Math.random()-.5)*2;b.vy=BS*(g.ls===1?-1:1);b.r=BR;b.st=1;b.sa=1;b.trail=[];b.state='normal'}
@@ -178,11 +185,9 @@ function ug(){
   if(!g)return;const b=g.ball;
   for(let r=0;r<GR;r++)for(let c=0;c<GC;c++){const v=gv[r][c];const dx=v.bx-b.x,dy=v.by-b.y;const d=Math.sqrt(dx*dx+dy*dy);
     if(d<WR){const s=WS/(1+d*d/700);const f=1-d/WR;const st=s*f*f;const ndx=dx/(d+.01),ndy=dy/(d+.01);
-      v.dx=ndx*st*(b.sa*1.15);v.dy=ndy*st*(b.sa*1.15);
-      // Ripple: add extra displacement that decays slower
-      v.rx+=ndx*st*b.sa*.08;v.ry+=ndy*st*b.sa*.08}
+      v.dx=ndx*st*(b.sa*1.15);v.dy=ndy*st*(b.sa*1.15)}
     else{v.dx*=.88;v.dy*=.88}
-    v.rx*=.88;v.ry*=.88;v.dx*=.93;v.dy*=.93}
+    v.dx*=.93;v.dy*=.93}
 }
 
 // === RENDER ===
@@ -218,10 +223,10 @@ function dr(){
 
 function dg(){
   // Draw deformed grid with ripples and electric glow
-  for(let r=0;r<GR;r++){ct.beginPath();let s=false;for(let c=0;c<GC;c++){const v=gv[r][c];const x=v.bx+v.dx+v.rx,y=v.by+v.dy+v.ry;if(!s){ct.moveTo(x,y);s=true}else ct.lineTo(x,y)}
+  for(let r=0;r<GR;r++){ct.beginPath();let s=false;for(let c=0;c<GC;c++){const v=gv[r][c];const x=v.bx+v.dx,y=v.by+v.dy;if(!s){ct.moveTo(x,y);s=true}else ct.lineTo(x,y)}
     let a=.06;let lw=.4;if(g){const b=g.ball;const px=1-Math.abs(r-(b.y/H*GR))/(GR*.35);if(px>0){a+=px*.25;lw+=px*1.2}}
     ct.strokeStyle='rgba(0,198,255,'+Math.min(a,.45)+')';ct.lineWidth=Math.min(lw,1.6);ct.stroke()}
-  for(let c=0;c<GC;c++){ct.beginPath();let s=false;for(let r=0;r<GR;r++){const v=gv[r][c];const x=v.bx+v.dx+v.rx,y=v.by+v.dy+v.ry;if(!s){ct.moveTo(x,y);s=true}else ct.lineTo(x,y)}
+  for(let c=0;c<GC;c++){ct.beginPath();let s=false;for(let r=0;r<GR;r++){const v=gv[r][c];const x=v.bx+v.dx,y=v.by+v.dy;if(!s){ct.moveTo(x,y);s=true}else ct.lineTo(x,y)}
     let a=.06;let lw=.4;if(g){const b=g.ball;const px=1-Math.abs(c-(b.x/W*GC))/(GC*.35);if(px>0){a+=px*.25;lw+=px*1.2}}
     ct.strokeStyle='rgba(0,198,255,'+Math.min(a,.45)+')';ct.lineWidth=Math.min(lw,1.6);ct.stroke()}
 }
@@ -286,7 +291,7 @@ function dp(pu){
 }
 
 // === HUD ===
-function sm(sc){const m=document.getElementById('msg');m.textContent=sc===1?'得分！':'失分！';m.className='msg show';const el=document.getElementById(sc===1?'s1':'s2');el.style.transform='scale(1.35)';setTimeout(()=>el.style.transform='',300);setTimeout(()=>m.classList.remove('show'),1200)}
+function sm(sc){const m=document.getElementById('msg');if(sc===1){m.textContent='Piu!';m.style.color='#00e676'}else{m.textContent='No…';m.style.color='#ff5252'}m.className='msg show';m.style.fontSize='52px';const el=document.getElementById(sc===1?'s1':'s2');el.style.transform='scale(1.5)';el.style.transition='transform .4s cubic-bezier(.34,1.56,.64,1)';setTimeout(()=>{el.style.transform='';el.style.transition='transform .2s'},500);setTimeout(()=>{m.classList.remove('show');m.style.fontSize='42px'},2200)}
 function ucd(){const cd=document.getElementById('cd');if(g.cd>0){cd.textContent=g.cd;cd.classList.add('show');cd.style.color=C(255,255,255,1);sfxCD();vcd();setTimeout(()=>cd.classList.remove('show'),700)}else{cd.textContent='GO!';cd.classList.add('show');sfxGO();vGO();flashScreen();setTimeout(()=>cd.classList.remove('show'),600)}}
 function hcd(){document.getElementById('cd').classList.remove('show')}
 function flashScreen(){const fl=document.getElementById('flash');fl.classList.add('go');setTimeout(()=>fl.classList.remove('go'),80)}
