@@ -287,9 +287,9 @@ function dr(){
     ct.fillText('ROUND '+g.round,W/2,topSafe+60);
     // Power-up indicator
     if(puStored&&!puActive){ct.fillStyle='#ffd740';ct.font='bold 10px monospace';ct.textAlign='center';
-      ct.fillText('2xTAP: '+(puStored==='extend'?'WIDE':'SPEED'),W/2,topSafe+76)}
+      ct.fillText('双击使用: '+(puStored==='extend'?'加长板':'加速球'),W/2,topSafe+76)}
     if(puActive){ct.fillStyle='#ffd740';ct.font='bold 11px monospace';ct.textAlign='center';
-      ct.fillText((puActive==='extend'?'WIDE':'SPEED')+' '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
+      ct.fillText((puActive==='extend'?'加长板':'加速球')+' '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
   }
 
   // Score flip animation
