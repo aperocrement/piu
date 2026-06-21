@@ -18,6 +18,7 @@ ct.imageSmoothingEnabled = false;
 
 // === SCREEN STATE ===
 var screen = 'home'; // home | playing | gameover
+var showHelp = false;
 var soundOn = true;
 var vibOn = true;
 var goData = null;
@@ -284,7 +285,9 @@ function dr(){
     ct.fillStyle='#00c6ff';ct.textAlign='left';ct.fillText(t1,cx,H*.28);
     ct.fillStyle='#e04060';ct.fillText(t2,cx+tw1,H*.28);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
-    ct.fillText('一起Piu一Piu',W/2,H*.28+56);
+    ct.textAlign='center';ct.fillText('一起Piu一Piu',W/2,H*.28+56);
+    // Help button
+    drawBtn('?',W/2-14,H*.28+68,28,28,'#555',false);
 
     // Mode buttons
     var by=H*.45;
@@ -347,6 +350,8 @@ function dr(){
   // Game over overlay
   if(screen==='gameover')drawGO();
 
+  // Help overlay
+  if(showHelp)drawHelp();
   // Exit confirm
   if(showExit)drawExitConfirm();
 
@@ -455,6 +460,15 @@ function drawExitConfirm(){
   drawBtn('YES',W/2-100,H/2+10,90,40,'#00c6ff',true);
   drawBtn('NO',W/2+10,H/2+10,90,40,'#555',false);
 }
+function drawHelp(){
+  ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
+  ct.fillStyle='#f0f0f0';ct.font='bold 18px monospace';ct.textAlign='center';
+  ct.fillText('怎么玩',W/2,topSafe+30);
+  var lines=['拖拽底部挡板 拦截弹球','球出底线 对方得分','先到5分获胜','','黄色方块 = 加长挡板','蓝色方块 = 大力击球','双击屏幕 使用道具','','球到板子正中 弹回更快','连续接球 得分翻倍'];
+  ct.fillStyle='#888';ct.font='12px monospace';
+  for(var i=0;i<lines.length;i++){ct.fillText(lines[i],W/2,topSafe+70+i*22)}
+  drawBtn('知道了',W/2-50,H-bottomSafe-80,100,36,'#00c6ff',true);
+}
 function hitTest(x,y,rx,ry,rw,rh){return x>=rx&&x<=rx+rw&&y>=ry&&y<=ry+rh}
 
 // === Start game ===
@@ -511,6 +525,8 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2+10,H/2+10,90,40)){showExit=false;return}return;
   }
 
+  // Help overlay close
+  if(showHelp){showHelp=false;return}
   // Home screen
   if(screen==='home'){
     var by=H*.45;
@@ -520,6 +536,7 @@ wx.onTouchStart(function(e){
     var tglY2=H*.45+54*3+8;
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;return}
+    if(hitTest(cx,cy,W/2-14,H*.28+68,28,28)){showHelp=true;return}
     if(hitTest(cx,cy,W/2-50,by+60,100,36)){wx.exitMiniProgram();return}
     return;
   }
