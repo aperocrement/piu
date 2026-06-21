@@ -63,7 +63,7 @@ if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.proto
 
 // === CONSTANTS ===
 const BR=22,PW=100,PH=12,PY=70;          // ball radius, paddle
-const GC=18,GR=28;                       // grid cols/rows
+const GC=12,GR=20;                       // grid cols/rows (coarser = larger cells)
 const WS=130,WR=120;                     // gravity well strength/radius (gentle)
 const BS=3.5,BM=8;                       // ball speed (slower start), max
 const PUS=30,PUI=6000,MPU=2;            // powerup size/interval/max
@@ -240,10 +240,10 @@ function dg(){
   function drawGrid(ox,oy,colorFn,lwMul){
     for(let r=0;r<GR;r++){ct.beginPath();let s=false;for(let c=0;c<GC;c++){const v=gv[r][c];const x=v.bx+v.dx+ox,y=v.by+v.dy+oy;if(!s){ct.moveTo(x,y);s=true}else ct.lineTo(x,y)}
       let a=.06;let lw=.4;if(g){const b=g.ball;const px=1-Math.abs(r-(b.y/H*GR))/(GR*.35);if(px>0){a+=px*.25;lw+=px*1.2}}
-      ct.strokeStyle=colorFn(Math.min(a,.45));ct.lineWidth=Math.min(lw,1.6)*lwMul;ct.stroke()}
+      ct.strokeStyle=colorFn(Math.min(a,.45));ct.lineWidth=Math.max(2,Math.min(lw,2.5)*lwMul);ct.stroke()}
     for(let c=0;c<GC;c++){ct.beginPath();let s=false;for(let r=0;r<GR;r++){const v=gv[r][c];const x=v.bx+v.dx+ox,y=v.by+v.dy+oy;if(!s){ct.moveTo(x,y);s=true}else ct.lineTo(x,y)}
-      let a=.06;let lw=.4;if(g){const b=g.ball;const px=1-Math.abs(c-(b.x/W*GC))/(GC*.35);if(px>0){a+=px*.25;lw+=px*1.2}}
-      ct.strokeStyle=colorFn(Math.min(a,.45));ct.lineWidth=Math.min(lw,1.6)*lwMul;ct.stroke()}
+      let a=.06;let lw=1;if(g){const b=g.ball;const px=1-Math.abs(c-(b.x/W*GC))/(GC*.35);if(px>0){a+=px*.25;lw+=px*1.2}}
+      ct.strokeStyle=colorFn(Math.min(a,.45));ct.lineWidth=Math.max(2,Math.min(lw,2.5)*lwMul);ct.stroke()}
   }
   // Shadow layer
   drawGrid(1,1,a=>'rgba(0,0,0,'+(a*.3)+')',1.3);
@@ -254,7 +254,7 @@ function dg(){
 function db(){
   const b=g.ball,r=b.r*b.sa,x=b.x,y=b.y;
   // Pixel-art ball: draw as blocky matrix approximating a circle
-  const ps=3; // pixel size for the ball sprite
+  const ps=6; // pixel size for the ball sprite (big chunky pixels)
   const pr=Math.floor(r/ps); // radius in pixels
   const stateCol=b.state==='grow'?'#00e870':b.state==='shrink'?'#ff8c28':'#00b8f0';
   // Draw square blocky circle
@@ -282,7 +282,7 @@ function db(){
 function dpd(pd,pl){
   const px=pd.x,py=pd.y,pw=pd.w,ph=pd.h,isB=pl===1;
   // Pixel block paddle - snap to pixel grid
-  const ps=2;
+  const ps=4;
   const sx=Math.floor(px/ps)*ps,sy=Math.floor(py/ps)*ps;
   const sw=Math.ceil(pw/ps)*ps,sh=Math.ceil(ph/ps)*ps;
   // Body
@@ -309,7 +309,7 @@ function dl(){
 function dp(pu){
   const s=pu.sz/2,gl=.5+Math.sin(pu.pl)*.3,isG=pu.type==='grow';
   const cr=isG?0:255,cg=isG?255:140,cb=isG?110:40;
-  const ps=2; // pixel grid
+  const ps=4; // pixel grid
   const px=Math.floor(pu.x/ps)*ps,py=Math.floor(pu.y/ps)*ps;
   const sz=Math.ceil(s/ps)*ps;
   ct.save();ct.translate(px,py);
