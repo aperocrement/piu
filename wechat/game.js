@@ -377,7 +377,7 @@ function hitTest(x,y,rx,ry,rw,rh){return x>=rx&&x<=rx+rw&&y>=ry&&y<=ry+rh}
 // === Start game ===
 function startGame(mode,diff){
   gm=mode;df=diff;
-  g=mk();g.mode=gm;g.diff=df;
+  g=mk();g.mode=gm;g.diff=df;g.sc=[0,0];g.round=1;
   ig();pts=[];sk2=0;
   msgText='';msgTimer=0;
   screen='playing';
@@ -418,7 +418,7 @@ wx.onTouchStart(function(e){
   // Game over
   if(screen==='gameover'){
     if(hitTest(cx,cy,W/2-100,H/2+20,200,44)){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();return}
-    if(hitTest(cx,cy,W/2-100,H/2+72,200,44)){showRewarded(function(watched){if(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner()}});return}
+    if(hitTest(cx,cy,W/2-100,H/2+72,200,44)){showRewarded(function(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();});return}
     if(hitTest(cx,cy,W/2-60,H/2+128,120,36)){hideBanner();screen='home';g=mk();ig();goData=null;return}
     return;
   }
@@ -447,7 +447,8 @@ wx.onTouchEnd(function(e){
 });
 
 // === LOOP ===
-function lp(){try{if(g){ug();up(16)}dr();homeBeat()}catch(e){}}
+var homeResetTimer=0;
+function lp(){try{if(g){ug();up(16);if(screen==='home'){homeResetTimer++;if(homeResetTimer>300){homeResetTimer=0;g=mk();ig()}}}dr();homeBeat()}catch(e){}}
 setInterval(lp,16);
 setInterval(function(){spu()},PUI);
 g=mk();ig();initAds();
