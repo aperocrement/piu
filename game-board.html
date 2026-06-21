@@ -39,6 +39,12 @@
     .exit-btn{position:absolute;bottom:12px;left:12px;z-index:5;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:2px solid #555;background:#0a0a1a;color:#888;font-family:'Courier New',monospace;font-size:16px;font-weight:900;cursor:pointer;text-decoration:none}
     .exit-btn:active{background:#555;color:#f0f0f0}
     .pixel-overlay{display:none}
+    .score-flip{animation:flip .4s steps(4)}
+    @keyframes flip{0%{transform:translateY(-20px);opacity:0}40%{transform:translateY(4px);opacity:1}60%{transform:translateY(-4px)}100%{transform:translateY(0);opacity:1}}
+    .confirm-overlay{position:absolute;inset:0;background:rgba(10,10,26,.95);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:15;padding:32px}
+    .confirm-overlay.show{display:flex}
+    .confirm-msg{font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:#f0f0f0}
+    .confirm-btns{display:flex;gap:16px}
   </style>
 </head>
 <body>
@@ -48,7 +54,14 @@
 <div class="hud"><span class="hud-score" id="s1">0</span><div class="hud-center"><div class="hud-round">回合 <span id="rn">1</span></div><div><span id="ml"></span></div><div style="font-size:9px;opacity:.25"><span id="wc"></span></div></div><span class="hud-score" id="s2">0</span></div>
 <div class="msg" id="msg"></div><div class="cd" id="cd"></div>
 <div class="overlay" id="lo"><div style="color:#fff;font-size:28px;font-weight:700">WiFi</div><div style="color:rgba(255,255,255,.5);font-size:14px;text-align:center;max-width:260px;line-height:1.6"></div><div id="lc" style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:280px"><button class="btn btn-p" onclick="cr()" style="width:100%"></button><div id="rcd" style="display:none;text-align:center"><div style="font-size:11px;color:rgba(255,255,255,.35)"></div><div style="font-family:monospace;font-size:52px;font-weight:700;color:#fff;letter-spacing:.08em" id="rct"></div><div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:4px"></div></div></div><div id="lj" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:280px"><input id="jc" type="text" inputmode="numeric" maxlength="4" placeholder="" style="width:100%;padding:12px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;font-size:20px;text-align:center;letter-spacing:.12em;outline:none;font-family:monospace"><button class="btn btn-p" onclick="jr()" style="width:100%"></button></div><button class="btn btn-g" onclick="location.href='index.html'"></button></div>
-<a class="exit-btn" href="index.html" title="退出">✕</a>
+<a class="exit-btn" href="#" onclick="showExitConfirm();return false" title="退出">✕</a>
+<div class="confirm-overlay" id="exitConfirm">
+  <div class="confirm-msg">QUIT ?</div>
+  <div class="confirm-btns">
+    <button class="btn btn-p" onclick="location.href='index.html'">YES</button>
+    <button class="btn btn-g" onclick="hideExitConfirm()">NO</button>
+  </div>
+</div>
 <div class="overlay" id="go"><div class="overlay-title" id="gt"></div><div class="overlay-scores"><span id="gs1">0</span><span style="font-size:16px;color:rgba(255,255,255,.35)">:</span><span id="gs2">0</span></div><div class="overlay-sub" id="gsub"></div><button class="btn btn-p" onclick="rs()"></button><button class="btn btn-g" onclick="location.href='index.html'"></button></div>
 <script>
 const cv=document.getElementById('c'),ct=cv.getContext('2d');
@@ -297,7 +310,9 @@ function dp(pu){
 }
 
 // === HUD ===
-function sm(sc){const m=document.getElementById('msg');if(sc===1){m.textContent='Piu!';m.style.color='#00e676'}else{m.textContent='No…';m.style.color='#ff5252'}m.className='msg show';m.style.fontSize='52px';const el=document.getElementById(sc===1?'s1':'s2');el.style.transform='scale(1.5)';el.style.transition='transform .4s cubic-bezier(.34,1.56,.64,1)';setTimeout(()=>{el.style.transform='';el.style.transition='transform .2s'},500);setTimeout(()=>{m.classList.remove('show');m.style.fontSize='42px'},2200)}
+function sm(sc){const m=document.getElementById('msg');if(sc===1){m.textContent='PIU!';m.style.color='#00c6ff'}else{m.textContent='NO..';m.style.color='#e04060'}m.className='msg show';m.style.fontSize='28px';const el=document.getElementById(sc===1?'s1':'s2');el.classList.remove('score-flip');void el.offsetWidth;el.classList.add('score-flip');setTimeout(()=>{m.classList.remove('show');m.style.fontSize='32px'},2200)}
+function showExitConfirm(){document.getElementById('exitConfirm').classList.add('show')}
+function hideExitConfirm(){document.getElementById('exitConfirm').classList.remove('show')}
 function ucd(){const cd=document.getElementById('cd');if(g.cd>0){cd.textContent=g.cd;cd.classList.add('show');cd.style.color='#f0f0f0';sfxCD();vcd();setTimeout(()=>cd.classList.remove('show'),700)}else{cd.textContent='GO!';cd.classList.add('show');sfxGO();vGO();flashScreen();setTimeout(()=>cd.classList.remove('show'),600)}}
 function hcd(){document.getElementById('cd').classList.remove('show')}
 function flashScreen(){const fl=document.getElementById('flash');fl.classList.add('go');setTimeout(()=>fl.classList.remove('go'),80)}
