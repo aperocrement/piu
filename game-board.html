@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Piu</title>
+<title>PixPiuPiu</title>
 <link rel="stylesheet" href="css/piu-tokens.css"/>
 <link rel="manifest" href="/manifest.json"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Piu"/>
+<meta name="apple-mobile-web-app-title" content="PixPiuPiu"/>
 <meta name="theme-color" content="#000"/>
 <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:none}
-canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%}
+canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%;image-rendering:pixelated}
 .hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:max(14px,env(safe-area-inset-top)) 20px 0;pointer-events:none;z-index:2}
 .hud-score{font-size:28px;font-weight:700;letter-spacing:-.02em;color:#fff;transition:transform .2s}
 .hud-center{text-align:center;font-size:10px;color:rgba(255,255,255,.35)}
@@ -38,10 +38,20 @@ canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%}
 .flash.go{opacity:.25;transition:opacity 0s}
 .exit-btn{position:absolute;bottom:20px;left:20px;z-index:5;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:50%;color:rgba(255,255,255,.4);font-size:20px;cursor:pointer;text-decoration:none}
 .exit-btn:active{background:rgba(255,255,255,.14);color:#fff}
+
+.pixel-overlay {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px, rgba(0,0,0,.03) 3px, rgba(0,0,0,.03) 4px
+  );
+}
+
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div class="pixel-overlay"></div>
 <div class="flash" id="flash"></div>
 <div class="hud"><span class="hud-score" id="s1">0</span><div class="hud-center"><div class="hud-round">回合 <span id="rn">1</span></div><div><span id="ml"></span></div><div style="font-size:9px;opacity:.25"><span id="wc"></span></div></div><span class="hud-score" id="s2">0</span></div>
 <div class="msg" id="msg"></div><div class="cd" id="cd"></div>
@@ -52,10 +62,19 @@ canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%}
 const cv=document.getElementById('c'),ct=cv.getContext('2d');
 const q=new URLSearchParams(location.search);
 let gm=q.get('mode')||'ai',df=q.get('diff')||'medium';
-const dpr=Math.min(devicePixelRatio||1,2);
+const dpr=Math.min(devicePixelRatio||1,1.5);  // half-res for pixel look
 let W,H;
-function rz(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';ct.setTransform(dpr,0,0,dpr,0,0)}
+function rz(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';ct.setTransform(dpr,0,0,dpr,0,0);setupOffscreen()}
 rz();addEventListener('resize',rz);
+const PXSCALE=3;  // pixel art scale factor
+let oc,octx;  // offscreen canvas
+function setupOffscreen(){
+  oc=document.createElement('canvas');
+  oc.width=Math.floor(W/PXSCALE); oc.height=Math.floor(H/PXSCALE);
+  octx=oc.getContext('2d');
+  octx.imageSmoothingEnabled=false;
+}
+
 if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath()}}
 
 // === CONSTANTS ===
@@ -228,6 +247,16 @@ function dr(){
   const vg=ct.createRadialGradient(W/2,H/2,W*.35,W/2,H/2,W*.75);
   vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.45)');
   ct.fillStyle=vg;ct.fillRect(0,0,W,H);
+
+  // === PIXEL POST-PROCESSING (low-res blit for pixel art look) ===
+  const PW=Math.floor(W/PXSCALE),PH=Math.floor(H/PXSCALE);
+  oc.width=PW;oc.height=PH;
+  octx.imageSmoothingEnabled=false;
+  octx.drawImage(cv,0,0,W,H,0,0,PW,PH);
+  ct.clearRect(0,0,W,H);
+  ct.imageSmoothingEnabled=false;
+  ct.drawImage(oc,0,0,PW,PH,0,0,W,H);
+  ct.imageSmoothingEnabled=true;
 }
 
 function dg(){
