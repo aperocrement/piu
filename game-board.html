@@ -210,8 +210,7 @@ function dr(){
     const tc=t.st==='grow'?[0,255,110]:t.st==='shrink'?[255,140,40]:[0,198,255];
     ct.beginPath();ct.arc(t.x,t.y,t.r*t.life*.7,0,Math.PI*2);ct.fillStyle='rgba('+tc[0]+','+tc[1]+','+tc[2]+','+(t.life*.35)+')';ct.fill()}}
 
-  // Ball dust
-  for(const d of dusts){ct.beginPath();ct.arc(d.x,d.y,2*d.life,0,Math.PI*2);ct.fillStyle='rgba(0,168,224,d.life*.5);ct.fill()}
+  // Ball dust removed — pure pixel style
 
   if(g)db();
   if(g){dpd(g.pad,1);dpd(g.ai,2)}
