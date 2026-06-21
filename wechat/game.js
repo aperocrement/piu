@@ -167,7 +167,8 @@ function up(dt){
   if(g.mode!=='local'&&g.mode!=='couple'){ai.tx=b.x;var d=ai.tx-(ai.x+ai.w/2);var sp=g.diff==='hard'?7:g.diff==='easy'?3:4.8;if(Math.abs(d)>5)ai.x+=d>0?sp:-sp;if(g.diff==='easy')ai.x+=(Math.random()-.5)*4;else if(g.diff==='medium')ai.x+=(Math.random()-.5)*1.8;ai.x=Math.max(0,Math.min(W-ai.w,ai.x))}
 
   b.x+=b.vx;b.y+=b.vy;
-  if(Math.abs(b.vx)+Math.abs(b.vy)>2){b.trail.push({x:b.x,y:b.y,life:1,r:b.r*b.sa,st:b.state});if(b.trail.length>14)b.trail.shift()}
+  var trailMax=14+Math.min(combo*2,20); // combo → longer trail
+  if(Math.abs(b.vx)+Math.abs(b.vy)>2){b.trail.push({x:b.x,y:b.y,life:1,r:b.r*b.sa,st:b.state,cb:combo});if(b.trail.length>trailMax)b.trail.shift()}
   b.trail.forEach(function(t){t.life-=.07});b.trail=b.trail.filter(function(t){return t.life>0});
 
   if(b.x-b.r<0){b.x=b.r;b.vx*=-.86;if(screen==='playing')ew()}
@@ -193,24 +194,18 @@ function eh(pad,pl){
   // Squash & stretch
   b.st=.7;setTimeout(function(){if(g)g.ball.st=1.35},50);setTimeout(function(){if(g)g.ball.st=1.0},160);
   if(screen!=='playing')return;
-  // Sweet spot detection
+  // Sweet spot: center=PERFECT, edge=EDGE
   var absRx=Math.abs(rx);
   var isPerfect=absRx<.15,isEdge=absRx>.75;
-  // Hitstop on perfect hit
-  if(isPerfect)hitStop=5;
-  // Particles: golden for perfect, sparks for edge
+  if(isPerfect){hitStop=8;sk2=Math.min(sk2+6,12)} // longer freeze + heavy shake
+  else if(isEdge){sk2=Math.min(sk2+1,4);b.vx+=(Math.random()-.5)*1.5;b.vy+=(Math.random()-.5)*1} // wobble
+  else{sk2=Math.min(sk2+2,6)}
+  // Particles: golden burst for perfect, weak sparks for edge
   var pty=isPerfect?'wall':pl===1?'blue':'red';
-  var ptn=isPerfect?30:isEdge?12:18;
-  spt(b.x,b.y,ptn,pty,pl===1?-Math.PI/2:Math.PI/2);
-  if(isEdge)spt(b.x,b.y,8,'orange',pl===1?-Math.PI*1.2:Math.PI*0.2);
-  // Rally count
-  rally++;
-  // Score display text
-  if(isPerfect){msgText='PERFECT';msgColor='#ffd740';msgTimer=800}
-  else if(isEdge){msgText='EDGE!';msgColor='#ff5252';msgTimer=600}
-  sk2=Math.min(sk2+(isPerfect?4:2),isPerfect?10:6);
-  g.hits++;combo++;comboTimer=90;sfxH();vh();
-  if(isPerfect){var b2=b;setTimeout(function(){b2.vx*=1.15;b2.vy*=1.15},80)}
+  spt(b.x,b.y,isPerfect?40:isEdge?10:18,pty,pl===1?-Math.PI/2:Math.PI/2);
+  if(isEdge)spt(b.x,b.y,6,'orange',pl===1?-Math.PI*1.2:Math.PI*0.2);
+  rally++;g.hits++;combo++;comboTimer=90;sfxH();vh();
+  if(isPerfect){var b2=b;setTimeout(function(){b2.vx*=1.2;b2.vy*=1.2},60)}
 }
 function epu(pu){
   var b=g.ball;
@@ -272,7 +267,7 @@ function dr(){
   for(var ai2=0;ai2<apts.length;ai2++){var a=apts[ai2];ct.beginPath();ct.arc(a.x,a.y,a.r,0,Math.PI*2);ct.fillStyle='rgba(0,168,224,'+(a.a+.05*Math.sin(a.pl))+')';ct.fill()}
   dg();
   if(g){for(var j=0;j<g.pus.length;j++){var pu=g.pus[j];pu.pl+=.05;dp(pu)}}
-  if(g){for(var k=0;k<g.ball.trail.length;k++){var t=g.ball.trail[k];ct.beginPath();ct.arc(t.x,t.y,t.r*t.life*.7,0,Math.PI*2);ct.fillStyle='rgba(0,168,224,'+(t.life*.35)+')';ct.fill()}}
+  if(g){for(var k=0;k<g.ball.trail.length;k++){var t=g.ball.trail[k];var cAlpha=(t.life*.3)+(t.cb||0)*.03;var cR=t.cb>=10?255:t.cb>=5?255:0,cG=t.cb>=10?200:t.cb>=5?215:168,cB=t.cb>=10?0:t.cb>=5?0:224;ct.beginPath();ct.arc(t.x,t.y,t.r*t.life*.8,0,Math.PI*2);ct.fillStyle='rgba('+cR+','+cG+','+cB+','+Math.min(cAlpha,.8)+')';ct.fill()}}
   if(g)db();
   if(g){dpd(g.pad,1);dpd(g.ai,2)}
   dl();
@@ -316,13 +311,8 @@ function dr(){
     ct.fillText(g.sc[0]+'  :  '+g.sc[1],W/2,topSafe+42);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
     ct.fillText('ROUND '+g.round,W/2,topSafe+60);
-    // Rally counter
-    if(rally>=3){ct.fillStyle='#888';ct.font='bold 10px monospace';ct.textAlign='center';ct.fillText(rally+' SHOTS',W/2,topSafe+92)}
-    // Combo counter
-    if(combo>=3){var comboText=combo+'x';var comboC=combo>=10?'#ff5252':combo>=5?'#ffd740':'#fff';
-      ct.fillStyle=comboC;ct.font='bold '+(16+Math.min(combo,10))+'px monospace';ct.fillText(comboText,W/2,topSafe+106)}
-    // Match point
-    if(isMatchPoint){ct.fillStyle='#ff5252';ct.font='bold 12px monospace';ct.fillText('MATCH POINT',W/2,topSafe+105)}
+    // Match point: screen border pulse (via grid color already red)
+    // Combo & rally: silent — expressed through particles, shake, and ball trail
     // Power-up indicators
     if(puStored&&!puActive){ct.fillStyle='#ffd740';ct.font='bold 10px monospace';ct.textAlign='center';
       ct.fillText('双击: '+(puStored==='extend'?'加长板':'大力球'),W/2,topSafe+76)}
@@ -332,11 +322,6 @@ function dr(){
       ct.fillText('AI: '+(aiStored==='extend'?'加长板':'大力球'),W/2,topSafe+88)}
   }
 
-  // PERFECT/EDGE popup
-  if(msgTimer>0&&screen==='playing'&&!flipTimer){
-    ct.fillStyle=msgColor;ct.font='bold 20px monospace';ct.textAlign='center';
-    ct.fillText(msgText,W/2,H*.4-Math.sin(msgTimer/100)*8);
-  }
   // Score flip animation
   if(flipTimer>0&&screen==='playing'){
     flipTimer--;
