@@ -295,7 +295,7 @@ function dp(pu){
   const px=Math.floor(pu.x/ps)*ps,py=Math.floor(pu.y/ps)*ps,sz=Math.ceil(s/ps)*ps;
   ct.save();ct.translate(px,py);
   // Fill
-  ct.fillStyle='rgba('+cr+',0.2)';
+  ct.fillStyle='rgb('+cr+')';
   ct.fillRect(-sz,-sz,sz*2,sz*2);
   // Border
   ct.strokeStyle='rgba('+cr+',0.9)';ct.lineWidth=ps;
