@@ -9,13 +9,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Piu" />
-  <meta name="theme-color" content="#060a14" />
+  <meta name="theme-color" content="#0f380f" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   <style>
     * { box-sizing:border-box; margin:0; padding:0; }
     html,body {
       width:100%; height:100%;
-      background:#060a14; overflow:hidden;
+      background:#0f380f; overflow:hidden;
       font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     }
     #bgCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
@@ -27,36 +27,36 @@
     }
     .logo {
       font-size:56px; font-weight:700; letter-spacing:-0.03em; line-height:1;
-      color:#e8eaf0;
-      text-shadow:0 0 50px rgba(0,198,255,0.3), 0 0 100px rgba(0,198,255,0.08);
+      color:#9bbc0f;
+      text-shadow:0 0 50px rgba(139,172,15,0.3), 0 0 100px rgba(139,172,15,0.08);
     }
-    .logo span { color:#00c6ff; }
+    .logo span { color:#8bac0f; }
     .logo-sub {
       margin-top:6px; font-size:13px; font-weight:510;
       letter-spacing:0.12em; text-transform:uppercase;
-      color:rgba(255,255,255,0.35);
+      color:rgba(155,188,15,0.35);
     }
 
     /* Big play button */
     .play-btn {
       display:flex; align-items:center; justify-content:center;
       width:180px; height:52px; margin-top:44px;
-      background:transparent; border:2px solid #00c6ff;
-      border-radius:999px; color:#00c6ff;
+      background:transparent; border:2px solid #8bac0f;
+      border-radius:999px; color:#8bac0f;
       font-size:18px; font-weight:590; letter-spacing:0.08em;
       cursor:pointer; text-decoration:none;
       animation:btnPulse 2.5s ease-in-out infinite;
       -webkit-tap-highlight-color:transparent;
     }
     @keyframes btnPulse {
-      0%,100%{box-shadow:0 0 24px rgba(0,198,255,0.25),0 0 48px rgba(0,198,255,0.06);}
-      50%{box-shadow:0 0 40px rgba(0,198,255,0.4),0 0 80px rgba(0,198,255,0.12);}
+      0%,100%{box-shadow:0 0 24px rgba(139,172,15,0.25),0 0 48px rgba(139,172,15,0.06);}
+      50%{box-shadow:0 0 40px rgba(139,172,15,0.4),0 0 80px rgba(139,172,15,0.12);}
     }
-    .play-btn:active { background:#00c6ff; color:#060a14; transform:scale(0.95); }
+    .play-btn:active { background:#8bac0f; color:#0f380f; transform:scale(0.95); }
 
     .footer {
       position:absolute; bottom:28px;
-      font-size:11px; color:rgba(255,255,255,0.25); letter-spacing:0.06em;
+      font-size:11px; color:rgba(155,188,15,0.25); letter-spacing:0.06em;
     }
 
     /* ---- Mode picker overlay ---- */
@@ -72,26 +72,26 @@
     .picker-overlay.show { display:flex; }
     .picker-title {
       font-size:22px; font-weight:700; letter-spacing:-0.01em;
-      color:#e8eaf0; margin-bottom:16px;
+      color:#9bbc0f; margin-bottom:16px;
     }
     .picker-back {
       position:absolute; top:20px; left:20px;
       width:36px; height:36px;
       display:flex; align-items:center; justify-content:center;
-      background:transparent; border:none; color:rgba(255,255,255,0.4);
+      background:transparent; border:none; color:rgba(155,188,15,0.4);
       font-size:20px; cursor:pointer;
     }
 
     .choice-card {
       display:flex; align-items:center; gap:14px;
       width:100%; max-width:280px; padding:16px 20px;
-      background:rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(155,188,15,0.03);
+      border:1px solid rgba(155,188,15,0.08);
       border-radius:14px;
       cursor:pointer; transition:all 150ms;
       -webkit-tap-highlight-color:transparent;
     }
-    .choice-card:active { border-color:#00c6ff; background:rgba(0,198,255,0.06); }
+    .choice-card:active { border-color:#8bac0f; background:rgba(139,172,15,0.06); }
     .choice-icon {
       width:40px; height:40px; border-radius:10px;
       display:flex; align-items:center; justify-content:center;
@@ -103,18 +103,18 @@
     .icon-hard  { background:rgba(255,68,112,0.1); }
 
     .choice-info { flex:1; text-align:left; }
-    .choice-name { font-size:16px; font-weight:590; color:#e8eaf0; }
-    .choice-desc { font-size:12px; color:rgba(255,255,255,0.35); margin-top:2px; }
-    .choice-arrow { color:rgba(255,255,255,0.2); }
+    .choice-name { font-size:16px; font-weight:590; color:#9bbc0f; }
+    .choice-desc { font-size:12px; color:rgba(155,188,15,0.35); margin-top:2px; }
+    .choice-arrow { color:rgba(155,188,15,0.2); }
 
     .btn-quick {
       padding:12px 28px;
-      border:1px solid rgba(255,255,255,0.1);
+      border:1px solid rgba(155,188,15,0.1);
       border-radius:999px;
-      background:transparent; color:rgba(255,255,255,0.45);
+      background:transparent; color:rgba(155,188,15,0.45);
       font-size:13px; cursor:pointer;
     }
-    .btn-quick:active { border-color:rgba(255,255,255,0.3); color:#fff; }
+    .btn-quick:active { border-color:rgba(155,188,15,0.3); color:#9bbc0f; }
   </style>
 </head>
 <body>
@@ -216,7 +216,7 @@ for (let i=0;i<35;i++) pts.push({
 function animate() {
   ctx.clearRect(0,0,W,H);
   const gs=28;
-  ctx.strokeStyle='rgba(0,198,255,0.02)'; ctx.lineWidth=0.5;
+  ctx.strokeStyle='rgba(139,172,15,0.02)'; ctx.lineWidth=0.5;
   for(let x=gs;x<W;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
   for(let y=gs;y<H;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
   for(const p of pts){
