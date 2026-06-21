@@ -278,8 +278,11 @@ function dr(){
 
     // Title
     ct.fillStyle='#00c6ff';ct.font='bold 32px monospace';ct.textAlign='center';
-    ct.fillText('Piu',W/2,H*.28);
-    ct.fillStyle='#e04060';ct.fillText('一Piu',W/2,H*.28+36);
+    ct.font='bold 32px monospace';
+    var t1='Piu',t2='一Piu',tw1=ct.measureText(t1).width,tw2=ct.measureText(t2).width;
+    var cx=W/2-(tw1+tw2)/2;
+    ct.fillStyle='#00c6ff';ct.textAlign='left';ct.fillText(t1,cx,H*.28);
+    ct.fillStyle='#e04060';ct.fillText(t2,cx+tw1,H*.28);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
     ct.fillText('一起Piu一Piu',W/2,H*.28+56);
 
