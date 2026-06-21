@@ -19,7 +19,7 @@ var showExit = false;
 var homeMsg = '';
 
 // === CONSTANTS ===
-var BR=22,PW=100,PH=12,PY=70,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30,PUI=6000,MPU=2,WIN=5,CFW=3,CMW=6;
+var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30,PUI=6000,MPU=2,WIN=5,CFW=3,CMW=6;
 
 // === GAME STATE ===
 var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
@@ -58,13 +58,19 @@ sptAmb();
 
 // === AUDIO ===
 var AC=null;
-function iac(){if(!AC&&soundOn){try{AC=wx.createWebAudioContext()}catch(e){}}}
+function iac(){if(!AC&&soundOn){try{AC=wx.createWebAudioContext()}catch(e){};if(AC&&AC.state==='suspended')AC.resume()}}
 function bp(f,ty,d,v,ge){
   if(!AC||!soundOn)return;
   try{var t2=AC.currentTime,o=AC.createOscillator(),gn=AC.createGain();
     o.type=ty;o.frequency.setValueAtTime(f,t2);if(ge)o.frequency.linearRampToValueAtTime(f*ge,t2+d);
-    gn.gain.setValueAtTime(Math.min(v,.3),t2);gn.gain.setValueAtTime(.001,t2+d-.01);
+    gn.gain.setValueAtTime(Math.min(v,.25),t2);gn.gain.setValueAtTime(.001,t2+d-.01);
     o.connect(gn);gn.connect(AC.destination);o.start(t2);o.stop(t2+d)}catch(e){}
+}
+// Ambient home loop — subtle rhythmic pulse
+var homeBeatTimer=0;
+function homeBeat(){
+  if(!soundOn||screen!=='home')return;
+  homeBeatTimer++;if(homeBeatTimer>90){homeBeatTimer=0;bp(300,'sine',.08,.12,1.4);setTimeout(function(){if(screen==='home')bp(400,'sine',.06,.10,1.5)},150)}
 }
 function sfxH(){if(!soundOn)return;bp(800,'sine',.06,.22,1.8);bp(400,'sine',.03,.10,2.2)}
 function sfxW(){if(!soundOn)return;bp(130,'square',.04,.06,null)}
@@ -197,8 +203,8 @@ function dr(){
     drawBtn('VS AI  HARD',W/2-120,by,240,46,'#e04060',true);by+=54;
     drawBtn('2P  LOCAL',W/2-120,by,240,46,'#f0f0f0',true);by+=54;
 
-    // Sound toggle
-    drawBtn(soundOn?'SOUND ON':'SOUND OFF',W/2-80,by+8,160,36,soundOn?'#00c6ff':'#555',soundOn);
+    // Sound toggle (speaker icon)
+    drawSpeaker(W/2,by+18,soundOn);
 
     // Exit
     drawBtn('EXIT',W/2-50,by+60,100,36,'#555',false);
@@ -211,6 +217,8 @@ function dr(){
     ct.textAlign='right';ct.fillText(g.sc[1],W-16,40);
     ct.textAlign='center';ct.fillStyle='#ccc';ct.font='bold 13px monospace';
     ct.fillText('ROUND '+g.round,W/2,30);
+    // Speaker icon top-right
+    drawSpeaker(W-30,28,soundOn);
   }
 
   // Center message
@@ -281,6 +289,19 @@ function drawBtn(text,x,y,w,h,color,primary){
   ct.fillStyle=primary?'#0a0a1a':color;ct.font='bold 13px monospace';ct.textAlign='center';
   ct.fillText(text,x+w/2,y+h/2+5);
 }
+function drawSpeaker(cx,cy,on){
+  var s=14; // speaker size
+  ct.fillStyle=on?'#00c6ff':'#555';
+  // Speaker body
+  ct.fillRect(cx-s,cy-s,s*1.2,s*2);
+  ct.fillRect(cx-s*1.4,cy-s*.5,s*.6,s);
+  // Sound waves
+  if(on){
+    ct.strokeStyle='#00c6ff';ct.lineWidth=2;
+    ct.beginPath();ct.arc(cx+s*.5,cy,s*.4,-Math.PI*.4,Math.PI*.4);ct.stroke();
+    ct.beginPath();ct.arc(cx+s*.5,cy,s*.8,-Math.PI*.35,Math.PI*.35);ct.stroke();
+  }
+}
 function drawGO(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   ct.fillStyle='#f0f0f0';ct.font='bold 26px monospace';ct.textAlign='center';
@@ -314,6 +335,8 @@ wx.onTouchStart(function(e){
   var touch=e.touches[0];
   var cx=touch.clientX,cy=touch.clientY;
 
+  // Speaker toggle (playing screen top-right)
+  if(screen==='playing'&&hitTest(cx,cy,W-44,14,44,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
   // Exit button
   if(screen==='playing'&&hitTest(cx,cy,12,H-48,36,36)){
     if(showExit){showExit=false;return}showExit=true;return;
@@ -329,7 +352,8 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-120,by,240,46)){startGame('ai','easy');return}by+=54;
     if(hitTest(cx,cy,W/2-120,by,240,46)){startGame('ai','hard');return}by+=54;
     if(hitTest(cx,cy,W/2-120,by,240,46)){startGame('local','medium');return}by+=54;
-    if(hitTest(cx,cy,W/2-80,by+8,160,36)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
+    var sy=H*.45+54*3+8;
+    if(hitTest(cx,cy,W/2-30,sy,60,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2-50,by+60,100,36)){wx.exitMiniProgram();return}
     return;
   }
@@ -365,7 +389,7 @@ wx.onTouchEnd(function(e){
 });
 
 // === LOOP ===
-function lp(){try{if(g){ug();up(16)}dr()}catch(e){}}
+function lp(){try{if(g){ug();up(16)}dr();homeBeat()}catch(e){}}
 setInterval(lp,16);
 setInterval(function(){spu()},PUI);
 g=mk();ig();
