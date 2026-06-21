@@ -255,13 +255,6 @@ function db(){
       }
     }
   }
-  // White highlight block
-  ct.fillStyle='#f0f0f0';
-  const hx=Math.floor((x-r*.25)/ps)*ps,hy=Math.floor((y-r*.25)/ps)*ps,hs=Math.ceil(r*.3/ps)*ps;
-  ct.fillRect(hx,hy,hs,hs);
-  // Flat outline
-  ct.strokeStyle='#0a0a1a';ct.lineWidth=ps;
-  ct.strokeRect(Math.floor((x-pr*ps)/ps)*ps,Math.floor((y-pr*ps)/ps)*ps,pr*2*ps,pr*2*ps);
 }
 
 function dpd(pd,pl){
@@ -271,11 +264,6 @@ function dpd(pd,pl){
   const sw=Math.ceil(pw/ps)*ps,sh=Math.ceil(ph/ps)*ps;
   ct.fillStyle=isB?'#00a8e0':'#e04060';
   ct.fillRect(sx,sy,sw,sh);
-  // Highlight top 1 row
-  ct.fillStyle='#f0f0f0';
-  ct.fillRect(sx+ps,sy,sw-ps*2,ps);
-  // Border
-  ct.strokeStyle='#0a0a1a';ct.lineWidth=ps;
   ct.strokeRect(sx,sy,sw,sh);
 }
 
