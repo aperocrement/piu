@@ -62,18 +62,10 @@ canvas{display:block;position:absolute;top:0;left:0;width:100%;height:100%;image
 const cv=document.getElementById('c'),ct=cv.getContext('2d');
 const q=new URLSearchParams(location.search);
 let gm=q.get('mode')||'ai',df=q.get('diff')||'medium';
-const dpr=Math.min(devicePixelRatio||1,1.5);  // half-res for pixel look
+const dpr=1;  // 1:1 CSS pixels for pixel-art look
 let W,H;
-function rz(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';ct.setTransform(dpr,0,0,dpr,0,0);setupOffscreen()}
+function rz(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';ct.setTransform(dpr,0,0,dpr,0,0)}
 rz();addEventListener('resize',rz);
-const PXSCALE=3;  // pixel art scale factor
-let oc,octx;  // offscreen canvas
-function setupOffscreen(){
-  oc=document.createElement('canvas');
-  oc.width=Math.floor(W/PXSCALE); oc.height=Math.floor(H/PXSCALE);
-  octx=oc.getContext('2d');
-  octx.imageSmoothingEnabled=false;
-}
 
 if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(typeof r==='number')r={tl:r,tr:r,br:r,bl:r};this.moveTo(x+r.tl,y);this.lineTo(x+w-r.tr,y);this.quadraticCurveTo(x+w,y,x+w,y+r.tr);this.lineTo(x+w,y+h-r.br);this.quadraticCurveTo(x+w,y+h,x+w-r.br,y+h);this.lineTo(x+r.bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-r.bl);this.lineTo(x,y+r.tl);this.quadraticCurveTo(x,y,x+r.tl,y);this.closePath()}}
 
@@ -248,16 +240,7 @@ function dr(){
   vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.45)');
   ct.fillStyle=vg;ct.fillRect(0,0,W,H);
 
-  // === PIXEL POST-PROCESSING (low-res blit for pixel art look) ===
-  ct.setTransform(1,0,0,1,0,0);  // reset to device pixel space
-  const PW=Math.floor(W/PXSCALE),PH=Math.floor(H/PXSCALE);
-  oc.width=PW;oc.height=PH;
-  octx.imageSmoothingEnabled=false;
-  octx.drawImage(cv,0,0,cv.width,cv.height,0,0,PW,PH);
-  ct.clearRect(0,0,cv.width,cv.height);
-  ct.imageSmoothingEnabled=false;
-  ct.drawImage(oc,0,0,PW,PH,0,0,cv.width,cv.height);
-  ct.setTransform(dpr,0,0,dpr,0,0);  // restore for next frame
+
 }
 
 function dg(){
