@@ -1,5 +1,6 @@
-// Piu一Piu — WeChat Mini Game
+// Piu一Piu — WeChat Mini Game v1.1
 // High-DPI + Home screen + Sound toggle + Background demo
+try{wx.clearStorageSync()}catch(e){} // fresh start
 var info = wx.getSystemInfoSync();
 var dpr = Math.min(info.pixelRatio || 2, 2);
 var W = info.screenWidth || info.windowWidth || 375;
@@ -362,8 +363,9 @@ function drawGO(){
   ct.fillText(goData.w===1?'YOU WIN!':'YOU LOSE',W/2,H/2-70);
   ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-20);
   drawBtn('RETRY',W/2-100,H/2+20,200,44,'#00c6ff',true);
-  drawBtn('REVIVE',W/2-100,H/2+72,200,44,'#ffd740',true);
-  drawBtn('QUIT',W/2-60,H/2+128,120,36,'#555',false);
+  // Only show REVIVE if rewarded ad is available
+  if(rewardedVideoAd) drawBtn('REVIVE',W/2-100,H/2+72,200,44,'#ffd740',true);
+  drawBtn('QUIT',W/2-60,H/2+(rewardedVideoAd?128:80),120,36,'#555',false);
 }
 function drawExitConfirm(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
@@ -418,8 +420,9 @@ wx.onTouchStart(function(e){
   // Game over
   if(screen==='gameover'){
     if(hitTest(cx,cy,W/2-100,H/2+20,200,44)){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();return}
-    if(hitTest(cx,cy,W/2-100,H/2+72,200,44)){showRewarded(function(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();});return}
-    if(hitTest(cx,cy,W/2-60,H/2+128,120,36)){hideBanner();screen='home';g=mk();ig();goData=null;return}
+    if(rewardedVideoAd&&hitTest(cx,cy,W/2-100,H/2+72,200,44)){showRewarded(function(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();});return}
+    var qy=rewardedVideoAd?128:80;
+    if(hitTest(cx,cy,W/2-60,H/2+qy,120,36)){hideBanner();screen='home';g=mk();ig();goData=null;return}
     return;
   }
 
