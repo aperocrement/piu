@@ -1,4 +1,4 @@
-// Piu一Piu — WeChat Mini Game v1.3 TEST
+// Piu一Piu — WeChat Mini Game v1.4
 // High-DPI + Home screen + Sound toggle + Background demo
 try{wx.clearStorageSync()}catch(e){} // fresh start
 // DEBUG: show version on screen
@@ -24,7 +24,7 @@ var showExit = false;
 var homeMsg = '';
 
 // === CONSTANTS ===
-var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30,PUI=6000,MPU=2,WIN=999,CFW=3,CMW=6;
+var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30,PUI=6000,MPU=2,WIN=5,CFW=3,CMW=6;
 
 // === GAME STATE ===
 var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
@@ -186,7 +186,7 @@ function epu(pu){
   setTimeout(function(){if(g){g.ball.r=BR;g.ball.st=1.0;g.ball.state='normal'}},2500);
 }
 function gl(sc){
-  g.phase='playing';g.ball.vx=0;g.ball.vy=0;
+  g.phase='goal';g.ball.vx=0;g.ball.vy=0;
   if(g.couple){if(sc===2){g.sc[1]++;g.rsc[1]++}else{g.rsc[0]+=.5;g.sc[0]=Math.floor(g.rsc[0])}}
   else g.sc[sc-1]++;
   g.ls=sc;g.hits=0;g.pus=[];
@@ -199,7 +199,7 @@ function gl(sc){
   else{setTimeout(function(){rb()},2400)}
   g.round++;
 }
-function rb(){var b=g.ball;b.x=W/2;b.y=H/2;b.vx=(Math.random()-.5)*2;b.vy=BS2*(g.ls===1?-1:1);b.r=BR;b.st=1;b.sa=1;b.trail=[];b.state='normal'}
+function rb(){var b=g.ball;b.x=W/2;b.y=H/2;b.vx=(Math.random()-.5)*2;b.vy=BS2*(g.ls===1?-1:1);b.r=BR;b.st=1;b.sa=1;b.trail=[];b.state='normal';g.phase='playing'}
 
 // === GRID ===
 function ug(){
@@ -398,7 +398,7 @@ wx.onTouchStart(function(e){
   // Speaker toggle (playing mode, bottom-right next to exit)
   if(screen==='playing'&&hitTest(cx,cy,W-44,exY2-10,44,44)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
   // Exit button
-  if(SHOW_VERSION){ct.fillStyle="#333";ct.font="8px monospace";ct.textAlign="left";ct.fillText("v1.2 FIX",6,topSafe+70)}
+  if(SHOW_VERSION){ct.fillStyle="#333";ct.font="8px monospace";ct.textAlign="left";ct.fillText("v1.4",6,topSafe+70)}
   if(screen==='playing'&&hitTest(cx,cy,12,exY2,36,36)){
     if(showExit){showExit=false;return}showExit=true;return;
   }
