@@ -3,19 +3,19 @@
 
 // === INIT ===
 const info = wx.getSystemInfoSync();
-const dpr = info.pixelRatio;
+const dpr = 1; // pixel art: 1:1 pixel rendering
 let W = info.windowWidth, H = info.windowHeight;
 const canvas = wx.createCanvas();
-canvas.width = W * dpr;
-canvas.height = H * dpr;
+canvas.width = W;
+canvas.height = H;
 const ct = canvas.getContext('2d');
-ct.setTransform(dpr, 0, 0, dpr, 0, 0);
+const raf = canvas.requestAnimationFrame.bind(canvas);
+const caf = canvas.cancelAnimationFrame.bind(canvas);
 
 wx.onWindowResize(() => {
   const i = wx.getSystemInfoSync();
   W = i.windowWidth; H = i.windowHeight;
-  canvas.width = W * dpr; canvas.height = H * dpr;
-  ct.setTransform(dpr, 0, 0, dpr, 0, 0);
+  canvas.width = W; canvas.height = H;
   if (g) ig();
 });
 
@@ -417,7 +417,7 @@ function rs() { showGameOver=false; goData=null; g=mk(); pts=[]; sk=0; ig(); }
 // === LOOP ===
 function lp() {
   if(g) { ug(); up(16); dr() }
-  af = requestAnimationFrame(lp);
+  af = raf(lp);
 }
 setInterval(()=>spu(), PUI);
 if(gm==='network') { showLobby=true }
