@@ -25,10 +25,11 @@ var showExit = false;
 var homeMsg = '';
 
 // === CONSTANTS ===
-var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30,PUI=6000,MPU=2,WIN=5,CFW=3,CMW=6;
+var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=5.5,BM2=10,PUS=30,PUI=6000,MPU=2,WIN=5,CFW=3,CMW=6;
 
 // === GAME STATE ===
 var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
+var combo=0,comboTimer=0,isMatchPoint=false;
 var msgText='',msgTimer=0,msgColor='#fff';
 // Power-up queue system: collect → store → double-tap to activate
 var puStored=null,puActive=null,puTimer=0,aiStored=null,aiTimer=0,lastTap=0,tapCount=0;
@@ -154,6 +155,9 @@ function up(dt){
   b.sa+=(b.st-b.sa)*.28;
   // Extend timer (speed is one-shot, no timer)
   if(puActive){puTimer--;if(puTimer<=0)puActive=null}
+  // Combo decay + match point speed
+  if(comboTimer>0){comboTimer--;if(comboTimer<=0)combo=0}
+  if(isMatchPoint){b.vx*=1.005;b.vy*=1.005}
   // AI power-up auto-use
   if(aiStored){aiTimer++;if(aiTimer>120){aiActivate();aiTimer=0}}
   if(g.phase!=='playing')return;
@@ -185,7 +189,7 @@ function eh(pad,pl){
   b.vx=Math.sin(ang)*sp;b.vy=(pl===1?-1:1)*Math.abs(Math.cos(ang)*sp);
   if(pl===1)b.y=pad.y-b.r*b.sa-1;else b.y=pad.y+pad.h+b.r*b.sa+1;
   b.st=.7;setTimeout(function(){if(g)g.ball.st=1.35},50);setTimeout(function(){if(g)g.ball.st=1.0},160);
-  if(screen==='playing'){spt(b.x,b.y,18,pl===1?'blue':'red',pl===1?-Math.PI/2:Math.PI/2);sk2=Math.min(sk2+2,6);g.hits++;sfxH();vh();}
+  if(screen==='playing'){spt(b.x,b.y,18,pl===1?'blue':'red',pl===1?-Math.PI/2:Math.PI/2);sk2=Math.min(sk2+2,6);g.hits++;combo++;comboTimer=90;sfxH();vh();}
 }
 function epu(pu){
   var b=g.ball;
@@ -202,11 +206,14 @@ function epu(pu){
 function gl(sc){
   g.phase='goal';g.ball.vx=0;g.ball.vy=0;
   if(g.couple){if(sc===2){g.sc[1]++;g.rsc[1]++}else{g.rsc[0]+=.5;g.sc[0]=Math.floor(g.rsc[0])}}
-  else g.sc[sc-1]++;
-  g.ls=sc;g.hits=0;g.pus=[];
+  else{var bonus=combo>=10?2:combo>=5?1:0;g.sc[sc-1]+=1+bonus}
+  g.ls=sc;g.hits=0;g.pus=[];combo=0;
+  isMatchPoint=(g.sc[0]===WIN-1&&g.sc[1]===WIN-1);
   sk2=12;spt(g.ball.x,g.ball.y,45,sc===1?'blue':'red');
   if(sc===1){sfxG();vg()}else{sfxL()}
-  flipOld=g.sc[sc-1]-1;flipSide=sc;flipTimer=60;msgTimer=1800;
+  var bonus=combo>=10?2:combo>=5?1:0;
+  flipOld=g.sc[sc-1]-1-bonus;flipSide=sc;flipTimer=60;msgTimer=1800;
+  if(combo>=10)msgText='PERFECT x2';else if(combo>=5)msgText='GREAT +1';else msgText='+1';
   var wt=g.couple?(sc===2?CFW:CMW):WIN;
   var chk=g.couple?(sc===2?g.sc[1]:Math.floor(g.rsc[0])):g.sc[sc-1];
   if(chk>=wt){setTimeout(function(){screen='gameover';goData={w:sc};if(sc===1)sfxWin();else sfxLose()},1400)}
@@ -288,6 +295,11 @@ function dr(){
     ct.fillText(g.sc[0]+'  :  '+g.sc[1],W/2,topSafe+42);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
     ct.fillText('ROUND '+g.round,W/2,topSafe+60);
+    // Combo counter
+    if(combo>=3){var comboText=combo+'x';var comboC=combo>=10?'#ff5252':combo>=5?'#ffd740':'#fff';
+      ct.fillStyle=comboC;ct.font='bold '+(16+Math.min(combo,10))+'px monospace';ct.fillText(comboText,W/2,topSafe+90)}
+    // Match point
+    if(isMatchPoint){ct.fillStyle='#ff5252';ct.font='bold 12px monospace';ct.fillText('MATCH POINT',W/2,topSafe+105)}
     // Power-up indicators
     if(puStored&&!puActive){ct.fillStyle='#ffd740';ct.font='bold 10px monospace';ct.textAlign='center';
       ct.fillText('双击: '+(puStored==='extend'?'加长板':'大力球'),W/2,topSafe+76)}
@@ -335,12 +347,13 @@ function dr(){
 }
 
 function dg(){
+  var gc=isMatchPoint?'224,64,96':'0,168,224'; // match point → red grid
   for(var r=0;r<GR2;r++){ct.beginPath();var s=false;for(var c=0;c<GC2;c++){var v=gv[r][c];var x=v.bx+v.dx,y=v.by+v.dy;if(!s){ct.moveTo(x,y);s=true}else ct.lineTo(x,y)}
     var a=.10,lw=2;if(g){var b=g.ball;var px=1-Math.abs(r-(b.y/H*GR2))/(GR2*.35);if(px>0){a+=px*.30;lw+=px*2}}
-    ct.strokeStyle='rgba(0,168,224,'+Math.min(a,.5)+')';ct.lineWidth=Math.max(2,Math.min(lw,4));ct.stroke()}
+    ct.strokeStyle='rgba('+gc+','+Math.min(a,.5)+')';ct.lineWidth=Math.max(2,Math.min(lw,4));ct.stroke()}
   for(var c2=0;c2<GC2;c2++){ct.beginPath();var s2=false;for(var r2=0;r2<GR2;r2++){var v2=gv[r2][c2];var x2=v2.bx+v2.dx,y2=v2.by+v2.dy;if(!s2){ct.moveTo(x2,y2);s2=true}else ct.lineTo(x2,y2)}
     var a2=.10,lw2=2;if(g){var b2=g.ball;var px2=1-Math.abs(c2-(b2.x/W*GC2))/(GC2*.35);if(px2>0){a2+=px2*.30;lw2+=px2*2}}
-    ct.strokeStyle='rgba(0,168,224,'+Math.min(a2,.5)+')';ct.lineWidth=Math.max(2,Math.min(lw2,4));ct.stroke()}
+    ct.strokeStyle='rgba('+gc+','+Math.min(a2,.5)+')';ct.lineWidth=Math.max(2,Math.min(lw2,4));ct.stroke()}
 }
 
 function db(){
@@ -435,7 +448,7 @@ function startGame(mode,diff){
   ig();pts=[];sk2=0;
   flipTimer=0;flipSide=0;
   puStored=null;puActive=null;puTimer=0;aiStored=null;aiTimer=0;
-  screen='playing';
+  combo=0;comboTimer=0;isMatchPoint=false;  screen='playing';
   showBanner();
   iac();
 }
