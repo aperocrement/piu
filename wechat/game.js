@@ -29,6 +29,7 @@ var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30
 // === GAME STATE ===
 var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
 var msgText='',msgTimer=0,msgColor='#fff';
+var flipSide=0,flipTimer=0,flipOld=0; // score flip animation
 var t1=null,t2=null,tx=null;
 
 // === ADVERTISEMENTS ===
@@ -192,7 +193,7 @@ function gl(sc){
   g.ls=sc;g.hits=0;g.pus=[];
   sk2=12;spt(g.ball.x,g.ball.y,45,sc===1?'blue':'red');
   if(sc===1){sfxG();vg()}else{sfxL()}
-  msgText='+1';msgColor=sc===1?'#00c6ff':'#e04060';msgTimer=1800;
+  flipOld=g.sc[sc-1]-1;flipSide=sc;flipTimer=60;msgTimer=1800;
   var wt=g.couple?(sc===2?CFW:CMW):WIN;
   var chk=g.couple?(sc===2?g.sc[1]:Math.floor(g.rsc[0])):g.sc[sc-1];
   if(chk>=wt){setTimeout(function(){screen='gameover';goData={w:sc};if(sc===1)sfxWin();else sfxLose()},1400)}
@@ -274,10 +275,24 @@ function dr(){
     ct.fillText('ROUND '+g.round,W/2,topSafe+60);
   }
 
-  // Center message
-  if(msgText&&msgTimer>0&&screen==='playing'){
-    ct.fillStyle=msgColor;ct.font='bold 36px monospace';ct.textAlign='center';
-    ct.fillText(msgText,W/2,H/2-40+Math.sin(msgTimer/200)*4);
+  // Score flip animation
+  if(flipTimer>0&&screen==='playing'){
+    flipTimer--;
+    var fp=flipTimer/60; // 0→1 progress
+    var bounce=Math.abs(Math.sin(fp*Math.PI*2))*30*(1-fp);
+    // Scoring side: big bright, bounces
+    var sx=(flipSide===1)?W*.35:W*.65;
+    ct.textAlign='center';
+    ct.fillStyle=flipSide===1?'#00c6ff':'#e04060';
+    ct.font='bold 48px monospace';
+    ct.fillText(g.sc[flipSide-1],sx,H/2+bounce);
+    // Other side: small dim
+    var ox=(flipSide===2)?W*.35:W*.65;
+    ct.fillStyle='#444';ct.font='bold 22px monospace';
+    ct.fillText(g.sc[flipSide===2?0:1],ox,H/2+4);
+    // VS divider
+    ct.fillStyle='#555';ct.font='bold 16px monospace';
+    ct.fillText('VS',W/2,H/2-10);
   }
 
   // Game over overlay
@@ -382,7 +397,7 @@ function startGame(mode,diff){
   gm=mode;df=diff;
   g=mk();g.mode=gm;g.diff=df;g.sc=[0,0];g.round=1;
   ig();pts=[];sk2=0;
-  msgText='';msgTimer=0;
+  flipTimer=0;flipSide=0;
   screen='playing';
   showBanner();
   iac();
