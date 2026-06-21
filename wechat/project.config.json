@@ -1,0 +1,15 @@
+{
+  "description": "BitPiuPiu - Pixel Bounce Arena",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "compileWorklet": false,
+    "minified": true
+  },
+  "compileType": "game",
+  "libVersion": "3.5.0",
+  "appid": "YOUR_APPID_HERE",
+  "projectname": "BitPiuPiu",
+  "condition": {}
+}
