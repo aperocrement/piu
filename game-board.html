@@ -249,14 +249,15 @@ function dr(){
   ct.fillStyle=vg;ct.fillRect(0,0,W,H);
 
   // === PIXEL POST-PROCESSING (low-res blit for pixel art look) ===
+  ct.setTransform(1,0,0,1,0,0);  // reset to device pixel space
   const PW=Math.floor(W/PXSCALE),PH=Math.floor(H/PXSCALE);
   oc.width=PW;oc.height=PH;
   octx.imageSmoothingEnabled=false;
-  octx.drawImage(cv,0,0,W,H,0,0,PW,PH);
-  ct.clearRect(0,0,W,H);
+  octx.drawImage(cv,0,0,cv.width,cv.height,0,0,PW,PH);
+  ct.clearRect(0,0,cv.width,cv.height);
   ct.imageSmoothingEnabled=false;
-  ct.drawImage(oc,0,0,PW,PH,0,0,W,H);
-  ct.imageSmoothingEnabled=true;
+  ct.drawImage(oc,0,0,PW,PH,0,0,cv.width,cv.height);
+  ct.setTransform(dpr,0,0,dpr,0,0);  // restore for next frame
 }
 
 function dg(){
