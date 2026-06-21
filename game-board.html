@@ -19,7 +19,7 @@
     .hud-score{font-family:'Courier New',monospace;font-size:22px;font-weight:900;color:#f0f0f0}
     .hud-center{text-align:center;font-family:'Courier New',monospace;font-size:9px;color:#888}
     .hud-round{font-size:13px;color:#ccc;font-weight:900}
-    .msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Courier New',monospace;font-size:32px;font-weight:900;color:#f0f0f0;pointer-events:none;z-index:3;opacity:0}
+    .msg{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);font-family:'Courier New',monospace;font-size:36px;font-weight:900;color:#f0f0f0;pointer-events:none;z-index:3;opacity:0;transition:opacity .05s steps(2)}
     .msg.show{opacity:1}
     .cd{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.25);font-family:'Courier New',monospace;font-size:72px;font-weight:900;color:#f0f0f0;pointer-events:none;z-index:3;opacity:0;transition:all .12s steps(3)}
     .cd.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
@@ -39,8 +39,8 @@
     .exit-btn{position:absolute;bottom:12px;left:12px;z-index:5;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:2px solid #555;background:#0a0a1a;color:#888;font-family:'Courier New',monospace;font-size:16px;font-weight:900;cursor:pointer;text-decoration:none}
     .exit-btn:active{background:#555;color:#f0f0f0}
     .pixel-overlay{display:none}
-    .score-flip{animation:flip .4s steps(4)}
-    @keyframes flip{0%{transform:translateY(-20px);opacity:0}40%{transform:translateY(4px);opacity:1}60%{transform:translateY(-4px)}100%{transform:translateY(0);opacity:1}}
+    .score-flip{animation:flip .5s steps(5)}
+    @keyframes flip{0%{transform:translateY(-16px) scale(1.4);opacity:0}30%{transform:translateY(3px) scale(.9);opacity:1}50%{transform:translateY(-4px) scale(1.1)}70%{transform:translateY(1px) scale(.95)}100%{transform:translateY(0) scale(1);opacity:1}}
     .confirm-overlay{position:absolute;inset:0;background:rgba(10,10,26,.95);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:15;padding:32px}
     .confirm-overlay.show{display:flex}
     .confirm-msg{font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:#f0f0f0}
@@ -310,7 +310,7 @@ function dp(pu){
 }
 
 // === HUD ===
-function sm(sc){const m=document.getElementById('msg');if(sc===1){m.textContent='PIU!';m.style.color='#00c6ff'}else{m.textContent='NO..';m.style.color='#e04060'}m.className='msg show';m.style.fontSize='28px';const el=document.getElementById(sc===1?'s1':'s2');el.classList.remove('score-flip');void el.offsetWidth;el.classList.add('score-flip');setTimeout(()=>{m.classList.remove('show');m.style.fontSize='32px'},2200)}
+function sm(sc){const m=document.getElementById('msg');if(sc===1){m.textContent='PIU!';m.style.color='#00c6ff'}else{m.textContent='NO..';m.style.color='#e04060'}m.className='msg show';const el=document.getElementById(sc===1?'s1':'s2');el.classList.remove('score-flip');void el.offsetWidth;el.classList.add('score-flip');setTimeout(()=>{m.classList.remove('show')},1800)}
 function showExitConfirm(){document.getElementById('exitConfirm').classList.add('show')}
 function hideExitConfirm(){document.getElementById('exitConfirm').classList.remove('show')}
 function ucd(){const cd=document.getElementById('cd');if(g.cd>0){cd.textContent=g.cd;cd.classList.add('show');cd.style.color='#f0f0f0';sfxCD();vcd();setTimeout(()=>cd.classList.remove('show'),700)}else{cd.textContent='GO!';cd.classList.add('show');sfxGO();vGO();flashScreen();setTimeout(()=>cd.classList.remove('show'),600)}}
