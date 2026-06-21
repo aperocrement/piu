@@ -36,29 +36,28 @@ var interstitialAd = null;
 var rewardedVideoAd = null;
 
 function initAds() {
-  // Banner 广告（底部常驻）
-  try {
-    bannerAd = wx.createBannerAd({
-      adUnitId: 'adunit-xxxxxxxxxxxxxxxx', // TODO: 替换为你的 Banner 广告位 ID
-      style: { left: 0, top: H - 60, width: W }
-    });
-    bannerAd.onError(function(err){ console.log('Banner error:', err) });
-  } catch(e) {}
-
-  // 插屏广告（首页→游戏之间弹出）
-  try {
-    interstitialAd = wx.createInterstitialAd({
-      adUnitId: 'adunit-xxxxxxxxxxxxxxxx' // TODO: 替换为你的插屏广告位 ID
-    });
-    interstitialAd.onError(function(err){ console.log('Interstitial error:', err) });
-  } catch(e) {}
-
-  // 激励视频（结算页「看视频继续玩」）
-  try {
-    rewardedVideoAd = wx.createRewardedVideoAd({
-      adUnitId: 'adunit-xxxxxxxxxxxxxxxx' // TODO: 替换为你的激励视频广告位 ID
-    });
-  } catch(e) {}
+  // 广告位 ID 是占位符时不创建（等有真实 ID 后替换 xxxxxxxx）
+  var placeholder = 'adunit-xxxxxxxxxxxxxxxx';
+  // Banner 广告
+  if (placeholder.indexOf('xxxx') < 0) {
+    try {
+      bannerAd = wx.createBannerAd({
+        adUnitId: placeholder,
+        style: { left: 0, top: H - 60, width: W }
+      });
+      bannerAd.onError(function(err){})
+    } catch(e) {}
+  }
+  // 插屏广告
+  var itlId = 'adunit-xxxxxxxxxxxxxxxx';
+  if (itlId.indexOf('xxxx') < 0) {
+    try { interstitialAd = wx.createInterstitialAd({ adUnitId: itlId }) } catch(e) {}
+  }
+  // 激励视频
+  var rvId = 'adunit-xxxxxxxxxxxxxxxx';
+  if (rvId.indexOf('xxxx') < 0) {
+    try { rewardedVideoAd = wx.createRewardedVideoAd({ adUnitId: rvId }) } catch(e) {}
+  }
 }
 
 function showBanner() {
@@ -195,8 +194,8 @@ function gl(sc){
   var wt=g.couple?(sc===2?CFW:CMW):WIN;
   var chk=g.couple?(sc===2?g.sc[1]:Math.floor(g.rsc[0])):g.sc[sc-1];
   if(chk>=wt){setTimeout(function(){screen='gameover';goData={w:sc};if(sc===1)sfxWin();else sfxLose()},1400)}
+  else{setTimeout(function(){rb()},2400)}
   g.round++;
-  setTimeout(function(){rb()},2600);
 }
 function rb(){var b=g.ball;b.x=W/2;b.y=H/2;b.vx=(Math.random()-.5)*2;b.vy=BS2*(g.ls===1?-1:1);b.r=BR;b.st=1;b.sa=1;b.trail=[];b.state='normal'}
 
