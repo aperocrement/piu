@@ -1,5 +1,5 @@
 {
-  "description": "BitPiuPiu - Pixel Bounce Arena",
+  "description": "Piu一Piu - Pixel Bounce Arena",
   "setting": {
     "urlCheck": true,
     "es6": true,
@@ -28,7 +28,7 @@
   "compileType": "game",
   "libVersion": "3.5.0",
   "appid": "wx8a7617aec01c5a54",
-  "projectname": "BitPiuPiu",
+  "projectname": "Piu一Piu",
   "condition": {},
   "simulatorPluginLibVersion": {},
   "packOptions": {

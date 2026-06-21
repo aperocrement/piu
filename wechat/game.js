@@ -1,4 +1,4 @@
-// BitPiuPiu — WeChat Mini Game
+// Piu一Piu — WeChat Mini Game
 // High-DPI + Home screen + Sound toggle + Background demo
 var info = wx.getSystemInfoSync();
 var dpr = Math.min(info.pixelRatio || 2, 2);
@@ -194,7 +194,7 @@ function dr(){
 
     // Title
     ct.fillStyle='#00c6ff';ct.font='bold 32px monospace';ct.textAlign='center';
-    ct.fillText('BIT',W/2,H*.28);
+    ct.fillText('PIU',W/2,H*.28);
     ct.fillStyle='#e04060';ct.fillText('PIUPIU',W/2,H*.28+36);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
     ct.fillText('PIXEL BOUNCE ARENA',W/2,H*.28+56);
