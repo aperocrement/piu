@@ -278,10 +278,10 @@ function dr(){
 
     // Title
     ct.fillStyle='#00c6ff';ct.font='bold 32px monospace';ct.textAlign='center';
-    ct.fillText('PIU',W/2,H*.28);
-    ct.fillStyle='#e04060';ct.fillText('PIUPIU',W/2,H*.28+36);
+    ct.fillText('Piu',W/2,H*.28);
+    ct.fillStyle='#e04060';ct.fillText('一Piu',W/2,H*.28+36);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
-    ct.fillText('PIXEL BOUNCE ARENA',W/2,H*.28+56);
+    ct.fillText('一起Piu一Piu',W/2,H*.28+56);
 
     // Mode buttons
     var by=H*.45;
