@@ -1,4 +1,4 @@
-// Piu一Piu — WeChat Mini Game v1.2 FIX
+// Piu一Piu — WeChat Mini Game v1.3 TEST
 // High-DPI + Home screen + Sound toggle + Background demo
 try{wx.clearStorageSync()}catch(e){} // fresh start
 // DEBUG: show version on screen
@@ -24,7 +24,7 @@ var showExit = false;
 var homeMsg = '';
 
 // === CONSTANTS ===
-var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30,PUI=6000,MPU=2,WIN=5,CFW=3,CMW=6;
+var BR=22,PW=100,PH=12,PY=130,GC2=12,GR2=20,WS2=130,WR2=120,BS2=4.5,BM2=9,PUS=30,PUI=6000,MPU=2,WIN=999,CFW=3,CMW=6;
 
 // === GAME STATE ===
 var g=null,sk2=0,gv=[],gcw,gch,pts=[],apts=[];
