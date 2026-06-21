@@ -278,21 +278,20 @@ function dr(){
   // Score flip animation
   if(flipTimer>0&&screen==='playing'){
     flipTimer--;
-    var fp=flipTimer/60; // 0→1 progress
-    var bounce=Math.abs(Math.sin(fp*Math.PI*2))*30*(1-fp);
-    // Scoring side: big bright, bounces
-    var sx=(flipSide===1)?W*.35:W*.65;
+    var fp=flipTimer/60;
+    var bounce=Math.abs(Math.sin(fp*Math.PI*2))*24*(1-fp);
+    // Both scores large, side by side
     ct.textAlign='center';
-    ct.fillStyle=flipSide===1?'#00c6ff':'#e04060';
-    ct.font='bold 48px monospace';
-    ct.fillText(g.sc[flipSide-1],sx,H/2+bounce);
-    // Other side: small dim
-    var ox=(flipSide===2)?W*.35:W*.65;
-    ct.fillStyle='#444';ct.font='bold 22px monospace';
-    ct.fillText(g.sc[flipSide===2?0:1],ox,H/2+4);
-    // VS divider
-    ct.fillStyle='#555';ct.font='bold 16px monospace';
-    ct.fillText('VS',W/2,H/2-10);
+    // Left score (P1)
+    ct.fillStyle=flipSide===1?'#00c6ff':'#666';
+    ct.font='bold 40px monospace';
+    ct.fillText(g.sc[0],W*.32,H/2+(flipSide===1?bounce:0));
+    // Right score (P2)
+    ct.fillStyle=flipSide===2?'#e04060':'#666';
+    ct.fillText(g.sc[1],W*.68,H/2+(flipSide===2?bounce:0));
+    // Divider
+    ct.fillStyle='#888';ct.font='bold 20px monospace';
+    ct.fillText(':',W/2,H/2-2);
   }
 
   // Game over overlay
