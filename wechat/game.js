@@ -19,6 +19,7 @@ ct.imageSmoothingEnabled = false;
 // === SCREEN STATE ===
 var screen = 'home'; // home | playing | gameover
 var soundOn = true;
+var vibOn = true;
 var goData = null;
 var showExit = false;
 var homeMsg = '';
@@ -95,7 +96,7 @@ function mk(){
     pus:[],sc:[0,0],rsc:[0,0],round:1,phase:'playing',pt:0,cd:0,ls:null,diff:df,mode:gm,hits:0,gt:0,couple:cp};
 }
 
-function spu(){if(!g||g.phase!=='playing'||g.pus.length>=MPU)return;g.pus.push({x:40+Math.random()*(W-80),y:100+Math.random()*(H-200),type:['grow','shrink'][Math.random()*2|0],sz:PUS,pl:Math.random()*Math.PI*2})}
+function spu(){if(!g||g.phase!=='playing'||g.pus.length>=MPU)return;var my=PY+30,mh=H-2*PY-60;g.pus.push({x:40+Math.random()*(W-80),y:my+Math.random()*mh,type:['grow','shrink'][Math.random()*2|0],sz:PUS,pl:Math.random()*Math.PI*2})}
 
 // === PARTICLES ===
 function spt(x,y,n,ty,dir){
@@ -138,9 +139,9 @@ function sfxWin(){if(!soundOn)return;bp(523,'square',.08,.3,1.5);setTimeout(func
 function sfxLose(){if(!soundOn)return;bp(330,'sawtooth',.08,.35,.5);setTimeout(function(){bp(220,'sawtooth',.08,.35,.4)},150);setTimeout(function(){bp(165,'sawtooth',.10,.5,.3)},300)}
 
 // === VIBRATION ===
-function vb(p){if(!soundOn)return;try{if(p&&p.length)wx.vibrateLong();else wx.vibrateShort()}catch(e){}}
-function vh(){vb([8])}function vw(){vb([4])}function vg(){vb([18,40,18,40,35])}
-function vpu(){vb([12,25,12])}function vcd(){vb([20])}function vGO(){vb([25,50,45])}
+function vb(p){if(!vibOn)return;try{wx.vibrateShort({type:'light'})}catch(e){}}
+function vh(){vb()}function vw(){}function vg(){vb()}
+function vpu(){vb()}function vcd(){}function vGO(){vb()}
 
 // === PHYSICS ===
 function up(dt){
@@ -258,8 +259,10 @@ function dr(){
     drawBtn('VS AI  HARD',W/2-120,by,240,46,'#e04060',true);by+=54;
     drawBtn('2P  LOCAL',W/2-120,by,240,46,'#f0f0f0',true);by+=54;
 
-    // Sound toggle (speaker icon)
-    drawSpeaker(W/2,by+18,soundOn);
+    // Sound + Vibe toggles
+    var tglY=by+18;
+    drawSpeaker(W/2-30,tglY,soundOn);
+    drawVibIcon(W/2+30,tglY,vibOn);
 
     // Exit
     drawBtn('EXIT',W/2-50,by+60,100,36,'#555',false);
@@ -306,8 +309,9 @@ function dr(){
     ct.fillStyle='#0a0a1a';ct.strokeStyle='#555';ct.lineWidth=2;
     ct.fillRect(12,exY,36,36);ct.strokeRect(12,exY,36,36);
     ct.fillStyle='#888';ct.font='bold 16px monospace';ct.textAlign='center';ct.fillText('X',30,exY+24);
-    // Speaker bottom-right
-    drawSpeaker(W-30,exY+18,soundOn);
+    // Sound + Vibe bottom-right
+    drawSpeaker(W-56,exY+18,soundOn);
+    drawVibIcon(W-22,exY+18,vibOn);
   }
 }
 
@@ -360,16 +364,25 @@ function drawBtn(text,x,y,w,h,color,primary){
   ct.fillText(text,x+w/2,y+h/2+5);
 }
 function drawSpeaker(cx,cy,on){
-  var s=14; // speaker size
+  var s=12;
   ct.fillStyle=on?'#00c6ff':'#555';
-  // Speaker body
   ct.fillRect(cx-s,cy-s,s*1.2,s*2);
   ct.fillRect(cx-s*1.4,cy-s*.5,s*.6,s);
-  // Sound waves
-  if(on){
-    ct.strokeStyle='#00c6ff';ct.lineWidth=2;
+  if(on){ct.strokeStyle='#00c6ff';ct.lineWidth=2;
     ct.beginPath();ct.arc(cx+s*.5,cy,s*.4,-Math.PI*.4,Math.PI*.4);ct.stroke();
-    ct.beginPath();ct.arc(cx+s*.5,cy,s*.8,-Math.PI*.35,Math.PI*.35);ct.stroke();
+    ct.beginPath();ct.arc(cx+s*.5,cy,s*.8,-Math.PI*.35,Math.PI*.35);ct.stroke();}
+}
+function drawVibIcon(cx,cy,on){
+  var s=12;
+  ct.fillStyle=on?'#ffd740':'#555';
+  // Phone outline
+  ct.strokeStyle=on?'#ffd740':'#555';ct.lineWidth=2;
+  ct.strokeRect(cx-s*.8,cy-s*1.2,s*1.6,s*2.4);
+  // Vibration lines
+  if(on){ct.fillStyle='#ffd740';
+    ct.fillRect(cx-s*.3,cy-s*.7,s*.6,3);
+    ct.fillRect(cx-s*.3,cy-s*.1,s*.6,3);
+    ct.fillRect(cx-s*.3,cy+s*.5,s*.6,3);
   }
 }
 function drawGO(){
@@ -409,8 +422,9 @@ wx.onTouchStart(function(e){
   var cx=touch.clientX,cy=touch.clientY;
 
   var exY2=H-bottomSafe-36;
-  // Speaker toggle (playing mode, bottom-right next to exit)
-  if(screen==='playing'&&hitTest(cx,cy,W-44,exY2-10,44,44)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
+  // Sound + Vibe toggles (playing mode)
+  if(screen==='playing'&&hitTest(cx,cy,W-60,exY2-10,28,44)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
+  if(screen==='playing'&&hitTest(cx,cy,W-30,exY2-10,28,44)){vibOn=!vibOn;return}
   // Exit button
   if(SHOW_VERSION){ct.fillStyle="#333";ct.font="8px monospace";ct.textAlign="left";ct.fillText("v1.4",6,topSafe+70)}
   if(screen==='playing'&&hitTest(cx,cy,12,exY2,36,36)){
@@ -427,8 +441,9 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-120,by,240,46)){startGame('ai','easy');return}by+=54;
     if(hitTest(cx,cy,W/2-120,by,240,46)){startGame('ai','hard');return}by+=54;
     if(hitTest(cx,cy,W/2-120,by,240,46)){startGame('local','medium');return}by+=54;
-    var sy=H*.45+54*3+8;
-    if(hitTest(cx,cy,W/2-30,sy,60,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
+    var tglY2=H*.45+54*3+8;
+    if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
+    if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;return}
     if(hitTest(cx,cy,W/2-50,by+60,100,36)){wx.exitMiniProgram();return}
     return;
   }
