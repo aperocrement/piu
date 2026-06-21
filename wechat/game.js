@@ -139,6 +139,7 @@ function sfxCD(){if(!soundOn)return;bp(200,'sine',.05,.12,null)}
 function sfxGO(){if(!soundOn)return;bp(520,'triangle',.08,.22,2)}
 function sfxWin(){if(!soundOn)return;bp(523,'square',.08,.3,1.5);setTimeout(function(){bp(659,'square',.08,.28,1.4)},120);setTimeout(function(){bp(784,'square',.08,.26,1.3)},240);setTimeout(function(){bp(1047,'square',.10,.4,null)},360)}
 function sfxLose(){if(!soundOn)return;bp(330,'sawtooth',.08,.35,.5);setTimeout(function(){bp(220,'sawtooth',.08,.35,.4)},150);setTimeout(function(){bp(165,'sawtooth',.10,.5,.3)},300)}
+function sfxSmash(){if(!soundOn)return;bp(200,'square',.03,.12,null);bp(80,'sawtooth',.05,.15,null);bp(600,'sine',.04,.08,2)}
 
 // === VIBRATION ===
 function vb(p){if(!vibOn)return;try{wx.vibrateShort({type:'light'})}catch(e){}}
@@ -287,9 +288,9 @@ function dr(){
     ct.fillText('ROUND '+g.round,W/2,topSafe+60);
     // Power-up indicator
     if(puStored&&!puActive){ct.fillStyle='#ffd740';ct.font='bold 10px monospace';ct.textAlign='center';
-      ct.fillText('双击使用: '+(puStored==='extend'?'加长板':'加速球'),W/2,topSafe+76)}
+      ct.fillText('双击使用: '+(puStored==='extend'?'加长板':'大力球'),W/2,topSafe+76)}
     if(puActive){ct.fillStyle='#ffd740';ct.font='bold 11px monospace';ct.textAlign='center';
-      ct.fillText((puActive==='extend'?'加长板':'加速球')+' '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
+      ct.fillText((puActive==='extend'?'加长板':'大力球')+' '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
   }
 
   // Score flip animation
@@ -440,7 +441,7 @@ function activatePU(){
   if(!puStored||puActive)return;
   puActive=puStored;puStored=null;puTimer=180;
   sfxPU();
-  if(puActive==='speed'){var b=g.ball;b.vy=(b.vy>0?-1:1)*Math.abs(b.vy)*1.5}
+  if(puActive==='speed'){var b=g.ball;b.vy=(b.vy>0?-1:1)*Math.abs(b.vy)*1.5;sfxSmash()}
 }
 
 // === TOUCH ===
