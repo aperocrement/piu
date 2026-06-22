@@ -356,9 +356,9 @@ function dr(){
 
   // Exit + speaker buttons (bottom, above home indicator)
   if(screen==='playing'){
-    var exY=H-bottomSafe-28;
-    ct.fillStyle='rgba(10,10,26,.5)';ct.fillRect(8,exY,20,20);
-    ct.fillStyle='#444';ct.font='12px monospace';ct.textAlign='center';ct.fillText('x',18,exY+15);
+    var exY=H-bottomSafe-22;
+    ct.fillStyle='rgba(10,10,26,.3)';ct.fillRect(6,exY,16,16);
+    ct.fillStyle='#333';ct.font='10px monospace';ct.textAlign='center';ct.fillText('x',14,exY+12);
     // Sound + Vibe bottom-right
     drawSpeaker(W-56,exY+18,soundOn);
     drawVibIcon(W-22,exY+18,vibOn);
@@ -445,7 +445,7 @@ function drawGO(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   ct.fillStyle='#f0f0f0';ct.font='bold 26px monospace';ct.textAlign='center';
   ct.fillText(goData.w===1?'你赢了！':'你输了',W/2,H/2-80);
-  if(goData.w===1&&winStreak>=2){ct.fillStyle='#ffd740';ct.font='bold 14px monospace';
+  if(goData.w===1&&winStreak>=1){ct.fillStyle='#ffd740';ct.font='bold 14px monospace';
     ct.fillText('连胜'+winStreak+'局！',W/2,H/2-50)}
   ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-10);
   drawBtn('再来',W/2-100,H/2+30,200,44,'#00c6ff',true);
@@ -511,13 +511,13 @@ wx.onTouchStart(function(e){
   var touch=e.touches[0];
   var cx=touch.clientX,cy=touch.clientY;
 
-  var exY2=H-bottomSafe-28;
+  var exY2=H-bottomSafe-22;
   // Sound + Vibe toggles (playing mode)
   if(screen==='playing'&&hitTest(cx,cy,W-60,exY2-10,28,44)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
   if(screen==='playing'&&hitTest(cx,cy,W-30,exY2-10,28,44)){vibOn=!vibOn;return}
   // Exit button
   if(SHOW_VERSION){ct.fillStyle="#333";ct.font="8px monospace";ct.textAlign="left";ct.fillText("v1.4",6,topSafe+70)}
-  if(screen==='playing'&&hitTest(cx,cy,8,exY2,20,20)){
+  if(screen==='playing'&&hitTest(cx,cy,6,exY2,16,16)){
     if(showExit){showExit=false;return}showExit=true;return;
   }
   if(showExit){
