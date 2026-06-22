@@ -278,17 +278,29 @@ function dr(){
     // Dim overlay
     ct.fillStyle='rgba(10,10,26,.75)';ct.fillRect(0,0,W,H);
 
-    // Title
-    ct.fillStyle='#00c6ff';ct.font='bold 32px monospace';ct.textAlign='center';
-    ct.font='bold 32px monospace';
+    // Title — pixel frame + bold
+    var titleY=H*.25,titleW=180,titleH=52;
+    // Pixel border frame
+    ct.strokeStyle='#00c6ff';ct.lineWidth=3;
+    ct.strokeRect(W/2-titleW/2,titleY-6,titleW,titleH);
+    ct.strokeStyle='#e04060';ct.lineWidth=1;
+    ct.strokeRect(W/2-titleW/2+4,titleY-2,titleW-8,titleH-8);
+    // Corner pixel decorations
+    var cs=6;
+    ct.fillStyle='#ffd740';ct.fillRect(W/2-titleW/2-2,titleY-8,cs,cs); // top-left
+    ct.fillRect(W/2+titleW/2-cs+2,titleY-8,cs,cs); // top-right
+    ct.fillRect(W/2-titleW/2-2,titleY+titleH+2-cs,cs,cs); // bottom-left
+    ct.fillRect(W/2+titleW/2-cs+2,titleY+titleH+2-cs,cs,cs); // bottom-right
+    // Title text
+    ct.font='bold 36px monospace';
     var t1='噗',t2='一嘭',tw1=ct.measureText(t1).width,tw2=ct.measureText(t2).width;
     var cx=W/2-(tw1+tw2)/2;
-    ct.fillStyle='#00c6ff';ct.textAlign='left';ct.fillText(t1,cx,H*.28);
-    ct.fillStyle='#e04060';ct.fillText(t2,cx+tw1,H*.28);
-    ct.fillStyle='#888';ct.font='bold 11px monospace';
-    ct.textAlign='center';ct.fillText('一起噗一嘭',W/2,H*.28+56);
+    ct.fillStyle='#00c6ff';ct.textAlign='left';ct.fillText(t1,cx,titleY+38);
+    ct.fillStyle='#e04060';ct.fillText(t2,cx+tw1,titleY+38);
+    ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textAlign='center';
+    ct.fillText('一起噗一嘭',W/2,titleY+60);
     // Help button
-    drawBtn('?',W/2-14,H*.28+68,28,28,'#555',false);
+    drawBtn('?',W/2-14,titleY+68,28,28,'#555',false);
 
     // Mode buttons
     var by=H*.45;
@@ -301,8 +313,11 @@ function dr(){
     drawSpeaker(W/2-30,tglY,soundOn);
     drawVibIcon(W/2+30,tglY,vibOn);
 
-    // Exit (small text)
-    ct.fillStyle='#444';ct.font='10px monospace';ct.textAlign='center';ct.fillText('退出',W/2,by+64);
+    // Exit icon (small pixel door)
+    var ex=W/2-8,ey=by+48;
+    ct.fillStyle='#333';ct.fillRect(ex,ey,16,20);
+    ct.fillStyle='#0a0a1a';ct.fillRect(ex+4,ey+4,8,12);
+    ct.fillStyle='#555';ct.fillRect(ex+6,ey+16,4,4);
   }
 
   // === PLAYING HUD ===
@@ -538,8 +553,9 @@ wx.onTouchStart(function(e){
     var tglY2=H*.45+54*3+8;
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;return}
-    if(hitTest(cx,cy,W/2-14,H*.28+68,28,28)){showHelp=true;return}
-    if(hitTest(cx,cy,W/2-20,by+54,40,22)){wx.exitMiniProgram();return}
+    var titleY2=H*.25;
+    if(hitTest(cx,cy,W/2-14,titleY2+68,28,28)){showHelp=true;return}
+    if(hitTest(cx,cy,W/2-10,by+46,22,26)){wx.exitMiniProgram();return}
     return;
   }
 
