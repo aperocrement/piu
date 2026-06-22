@@ -18,6 +18,7 @@ ct.imageSmoothingEnabled = false;
 // === SCREEN STATE ===
 var screen = 'home'; // home | playing | gameover
 var showHelp = false;
+var helpShake = 0; // shake animation for help button
 var winStreak = 0; // 连胜计数
 // Load saved preferences
 var soundOn=true,vibOn=true;
@@ -306,9 +307,12 @@ function dr(){
     ct.fillStyle='#e04060';ct.fillRect(cx-6,decoY+4,4,4);ct.fillRect(cx+36,decoY+4,4,4);
     ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textBaseline='alphabetic';
     ct.fillText('一起噗一嘭',W/2,titleY+68);
-    // Help
-    ct.fillStyle='#555';ct.font='bold 18px monospace';ct.textAlign='center';
-    ct.fillText('?',W/2,titleY+82);
+    // Help — yellow square with ?
+    var hs=28,hx2=W/2-hs/2,hy2=titleY+66,sx=0;
+    if(helpShake>0){sx=(helpShake%2===0?3:-3);helpShake--}
+    ct.fillStyle='#ffd740';ct.fillRect(hx2+sx,hy2,hs,hs);
+    ct.fillStyle='#0a0a1a';ct.font='bold 16px monospace';ct.textAlign='center';
+    ct.fillText('?',W/2+sx,hy2+20);
 
     // Mode buttons
     var by=H*.45;
@@ -574,7 +578,7 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;saveCfg();if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;saveCfg();return}
     var titleY2=H*.25;
-    if(hitTest(cx,cy,W/2-16,titleY2+68,32,28)){showHelp=true;return}
+    if(hitTest(cx,cy,W/2-16,titleY2+66,32,32)){helpShake=6;setTimeout(function(){showHelp=true},200);return}
     if(hitTest(cx,cy,W/2-14,by+50,28,20)){wx.exitMiniProgram();return}
     return;
   }
@@ -618,7 +622,7 @@ wx.onTouchEnd(function(e){
 
 // === LOOP ===
 var homeResetTimer=0;
-function lp(){try{if(g){ug();up(16);if(screen==='home'){homeResetTimer++;if(homeResetTimer>300){homeResetTimer=0;g=mk();ig()}}}dr();homeBeat()}catch(e){}}
+function lp(){try{if(g){ug();up(16);if(screen==='home'){homeResetTimer++;if(homeResetTimer>300){homeResetTimer=0;g=mk();ig()}}}dr();homeBeat();if(helpShake>0)helpShake--}catch(e){}}
 setInterval(lp,16);
 setInterval(function(){spu()},PUI);
 g=mk();ig();initAds();
