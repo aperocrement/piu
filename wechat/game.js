@@ -614,4 +614,4 @@ function lp(){try{if(g){ug();up(16);if(screen==='home'){homeResetTimer++;if(home
 setInterval(lp,16);
 setInterval(function(){spu()},PUI);
 g=mk();ig();initAds();
-// Enable share menu
+try{wx.showShareMenu({menus:["'shareAppMessage'"]})}catch(e){}
