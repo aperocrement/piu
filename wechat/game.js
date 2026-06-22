@@ -207,15 +207,19 @@ function eh(pad,pl){
   rally++;g.hits++;combo++;comboTimer=90;sfxH();vh();
 }
 function epu(pu){
-  var b=g.ball;
+  var b=g.ball,pp=g.pad,ai=g.ai;
   if(pu.type==='grow'){b.r=BR*1.9;b.st=1.9;b.state='grow';spt(pu.x,pu.y,20,'green')}
   else if(pu.type==='shrink'){b.r=BR*.65;b.st=.65;b.state='shrink';spt(pu.x,pu.y,18,'orange')}
   else if(pu.type==='extend'||pu.type==='speed'){
-    if(g.ball.vy<0){aiStored=pu.type;aiTimer=0} // ball going up → AI gets it
-    else{puStored=pu.type} // ball going down → player gets it
+    if(g.ball.vy<0){aiStored=pu.type;aiTimer=0}
+    else{puStored=pu.type}
     spt(pu.x,pu.y,16,pu.type==='speed'?'blue':'wall');
   }
   b.sa=b.st;sfxPU();vpu();
+  // Prevent ball clipping through paddles after size change
+  var r=b.r*b.sa;
+  if(b.y+r>pp.y&&b.x>pp.x-r&&b.x<pp.x+pp.w+r)b.y=pp.y-r-1;
+  if(b.y-r<ai.y+ai.h&&b.x>ai.x-r&&b.x<ai.x+ai.w+r)b.y=ai.y+ai.h+r+1;
   setTimeout(function(){if(g){g.ball.r=BR;g.ball.st=1.0;g.ball.state='normal'}},2500);
 }
 function gl(sc){
