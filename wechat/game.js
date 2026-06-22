@@ -306,19 +306,15 @@ function dr(){
     ct.fillStyle='#e04060';ct.fillRect(cx-6,decoY+4,4,4);ct.fillRect(cx+36,decoY+4,4,4);
     ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textBaseline='alphabetic';
     ct.fillText('一起噗一嘭',W/2,titleY+68);
-    // Pixel lightbulb
-    var hx=W/2-10,hy=titleY+68;
+    // Pixel ? icon
+    var hx=W/2-8,hy=titleY+70;
     ct.fillStyle='#ffd740';
-    // Bulb shape: 5x3 top, 7x5 middle, 5x3 bottom of bulb, 3x4 base
-    ct.fillRect(hx+4,hy,4,3); ct.fillRect(hx+2,hy+3,8,2);
-    ct.fillRect(hx,hy+5,12,4); ct.fillRect(hx+2,hy+9,8,2);
-    ct.fillRect(hx+4,hy+11,4,3); // bulb done
-    ct.fillRect(hx+6,hy+14,4,5); // base
-    ct.fillRect(hx+4,hy+19,8,3); // bottom contact
-    // Glow rays
-    ct.fillStyle='rgba(255,215,64,.4)';
-    ct.fillRect(hx-2,hy+4,2,2);ct.fillRect(hx+12,hy+4,2,2);
-    ct.fillRect(hx-2,hy+8,2,2);ct.fillRect(hx+12,hy+8,2,2);
+    ct.fillRect(hx+4,hy,8,4);  // top bar of ?
+    ct.fillRect(hx+10,hy+4,2,2); // top-right
+    ct.fillRect(hx+10,hy+6,2,2);
+    ct.fillRect(hx+4,hy+8,8,2);  // middle bar
+    ct.fillRect(hx+4,hy+12,4,2); // bottom-left dot of ?
+    ct.fillRect(hx+4,hy+16,4,4);
 
     // Mode buttons
     var by=H*.45;
@@ -584,7 +580,7 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;saveCfg();if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;saveCfg();return}
     var titleY2=H*.25;
-    if(hitTest(cx,cy,W/2-14,titleY2+66,28,28)){showHelp=true;return}
+    if(hitTest(cx,cy,W/2-14,titleY2+68,28,28)){showHelp=true;return}
     if(hitTest(cx,cy,W/2-14,by+50,28,20)){wx.exitMiniProgram();return}
     return;
   }
