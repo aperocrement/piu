@@ -23,8 +23,11 @@ var winStreak = 0; // 连胜计数
 var soundOn=true,vibOn=true;
 try{var s=wx.getStorageSync('piu_cfg');if(s){soundOn=s.sound!==false;vibOn=s.vib!==false}}catch(e){}
 function saveCfg(){try{wx.setStorageSync('piu_cfg',{sound:soundOn,vib:vibOn})}catch(e){}}
-// First-time help
-if(!wx.getStorageSync('piu_visited')){showHelp=true;wx.setStorageSync('piu_visited',1)}
+// Tutorial — first game only
+var tutorialStep=0,tutorialTimer=0;
+var tutorialDone=false;
+try{tutorialDone=wx.getStorageSync('piu_tuto')===1}catch(e){}
+var tutorialTips=['拖拽挡板 拦截弹球','球出底线 对方得一分','先到5分获胜','双击屏幕 使用道具'];
 var goData = null;
 var showExit = false;
 var homeMsg = '';
@@ -166,6 +169,8 @@ function up(dt){
   // Combo decay + match point speed
   if(comboTimer>0){comboTimer--;if(comboTimer<=0)combo=0}
   if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)msgText=''}
+  // Tutorial timer
+  if(!tutorialDone&&tutorialStep<4){tutorialTimer--;if(tutorialTimer<=0){tutorialStep++;tutorialTimer=300;if(tutorialStep>=4){tutorialDone=true;try{wx.setStorageSync('piu_tuto',1)}catch(e){}}}}
   // AI power-up auto-use
   if(aiStored){aiTimer++;if(aiTimer>120){aiActivate();aiTimer=0}}
   if(g.phase!=='playing')return;
@@ -209,6 +214,8 @@ function eh(pad,pl){
   spt(b.x,b.y,isPerfect?25:16,pty,pl===1?-Math.PI/2:Math.PI/2);
   sk2=Math.min(sk2+2,5);
   rally++;g.hits++;combo++;comboTimer=90;sfxH();vh();
+  // Tutorial: advance past step 0 on first hit
+  if(!tutorialDone&&tutorialStep===0){tutorialStep=1;tutorialTimer=240}
 }
 function epu(pu){
   var b=g.ball,pp=g.pad,ai=g.ai;
@@ -343,6 +350,17 @@ function dr(){
       ct.fillText('加长板 '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
     if(aiStored&&g&&g.mode!=='local'){ct.fillStyle='#e04060';ct.font='bold 9px monospace';ct.textAlign='center';
       ct.fillText('电脑: '+(aiStored==='extend'?'加长板':'大力球'),W/2,topSafe+88)}
+    // Tutorial bubble
+    if(!tutorialDone&&tutorialStep<4){
+      var tip=tutorialTips[tutorialStep];
+      var bw=ct.measureText(tip).width+20,bh=24,bx=W/2-bw/2,by=H*.65;
+      ct.fillStyle='rgba(0,0,0,.85)';ct.fillRect(bx,by,bw,bh);
+      ct.strokeStyle='#ffd740';ct.lineWidth=2;ct.strokeRect(bx,by,bw,bh);
+      ct.fillStyle='#fff';ct.font='bold 12px monospace';ct.textAlign='center';
+      ct.fillText(tip,W/2,by+16);
+      // Progress dots
+      for(var di=0;di<4;di++){ct.fillStyle=di===tutorialStep?'#ffd740':'#444';ct.fillRect(W/2-16+di*10,by+bh+6,6,6)}
+    }
   }
 
   // Feedback popup (太远 etc)
@@ -511,6 +529,7 @@ function startGame(mode,diff){
   flipTimer=0;flipSide=0;
   puStored=null;puActive=null;puTimer=0;aiStored=null;aiTimer=0;
   combo=0;comboTimer=0;isMatchPoint=false;rally=0;hitStop=0;
+  if(!tutorialDone){tutorialStep=0;tutorialTimer=300}
   screen='playing';
   showBanner();
   iac();
