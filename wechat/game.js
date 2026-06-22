@@ -19,8 +19,12 @@ ct.imageSmoothingEnabled = false;
 var screen = 'home'; // home | playing | gameover
 var showHelp = false;
 var winStreak = 0; // 连胜计数
-var soundOn = true;
-var vibOn = true;
+// Load saved preferences
+var soundOn=true,vibOn=true;
+try{var s=wx.getStorageSync('piu_cfg');if(s){soundOn=s.sound!==false;vibOn=s.vib!==false}}catch(e){}
+function saveCfg(){try{wx.setStorageSync('piu_cfg',{sound:soundOn,vib:vibOn})}catch(e){}}
+// First-time help
+if(!wx.getStorageSync('piu_visited')){showHelp=true;wx.setStorageSync('piu_visited',1)}
 var goData = null;
 var showExit = false;
 var homeMsg = '';
@@ -476,8 +480,9 @@ function drawGO(){
     ct.fillText('连胜'+winStreak+'局！',W/2,H/2-50)}
   ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-10);
   drawBtn('再来',W/2-100,H/2+30,200,44,'#00c6ff',true);
-  if(rewardedVideoAd) drawBtn('继续',W/2-100,H/2+82,200,44,'#ffd740',true);
-  drawBtn('退出',W/2-60,H/2+(rewardedVideoAd?138:90),120,36,'#555',false);
+  drawBtn('分享战绩',W/2-100,H/2+82,200,44,'#ffd740',true);
+  if(rewardedVideoAd) drawBtn('继续',W/2-100,H/2+132,200,44,'#ffd740',true);
+  drawBtn('退出',W/2-60,H/2+(rewardedVideoAd?188:140),120,36,'#555',false);
 }
 function drawExitConfirm(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
@@ -540,8 +545,8 @@ wx.onTouchStart(function(e){
 
   var exY2=H-bottomSafe-22;
   // Sound + Vibe toggles (playing mode)
-  if(screen==='playing'&&hitTest(cx,cy,W-60,exY2-10,28,44)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
-  if(screen==='playing'&&hitTest(cx,cy,W-30,exY2-10,28,44)){vibOn=!vibOn;return}
+  if(screen==='playing'&&hitTest(cx,cy,W-60,exY2-10,28,44)){soundOn=!soundOn;saveCfg();if(!soundOn)AC=null;else iac();return}
+  if(screen==='playing'&&hitTest(cx,cy,W-30,exY2-10,28,44)){vibOn=!vibOn;saveCfg();return}
   // Exit button
   if(screen==='playing'&&hitTest(cx,cy,6,exY2,16,16)){
     if(showExit){showExit=false;return}showExit=true;return;
@@ -560,8 +565,8 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-120,by,240,46)){startGame('ai','hard');return}by+=54;
     if(hitTest(cx,cy,W/2-120,by,240,46)){startGame('local','medium');return}by+=54;
     var tglY2=H*.45+54*3+8;
-    if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
-    if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;return}
+    if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;saveCfg();if(!soundOn)AC=null;else iac();return}
+    if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;saveCfg();return}
     var titleY2=H*.25;
     if(hitTest(cx,cy,W/2-14,titleY2+68,28,28)){showHelp=true;return}
     if(hitTest(cx,cy,W/2-14,by+50,28,20)){wx.exitMiniProgram();return}
@@ -571,8 +576,9 @@ wx.onTouchStart(function(e){
   // Game over
   if(screen==='gameover'){
     if(hitTest(cx,cy,W/2-100,H/2+30,200,44)){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();return}
-    if(rewardedVideoAd&&hitTest(cx,cy,W/2-100,H/2+82,200,44)){showRewarded(function(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();});return}
-    var qy=rewardedVideoAd?138:90;
+    if(hitTest(cx,cy,W/2-100,H/2+82,200,44)){try{wx.shareAppMessage({title:'噗一嘭 '+g.sc[0]+':'+g.sc[1]+' 一起来噗一嘭！'})}catch(e){};return}
+    if(rewardedVideoAd&&hitTest(cx,cy,W/2-100,H/2+132,200,44)){showRewarded(function(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();});return}
+    var qy=rewardedVideoAd?188:140;
     if(hitTest(cx,cy,W/2-60,H/2+qy,120,36)){hideBanner();screen='home';g=mk();ig();goData=null;return}
     return;
   }
@@ -610,3 +616,6 @@ function lp(){try{if(g){ug();up(16);if(screen==='home'){homeResetTimer++;if(home
 setInterval(lp,16);
 setInterval(function(){spu()},PUI);
 g=mk();ig();initAds();
+// Enable share menu
+try{wx.showShareMenu({menus:['shareAppMessage','shareTimeline']})}catch(e){}
+wx.onShareAppMessage(function(){var s0=g?g.sc[0]:0,s1=g?g.sc[1]:0;return{title:'噗一嘭 '+s0+':'+s1+' 一起来噗一嘭！',imageUrl:''}});
