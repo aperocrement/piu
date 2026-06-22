@@ -292,8 +292,8 @@ function dr(){
 
     // Mode buttons
     var by=H*.45;
-    drawBtn('慢慢玩模式',W/2-120,by,240,46,'#00c6ff',true);by+=54;
-    drawBtn('闪电弹模式',W/2-120,by,240,46,'#e04060',true);by+=54;
+    drawBtn('慢慢玩',W/2-120,by,240,46,'#00c6ff',true);by+=54;
+    drawBtn('闪电弹',W/2-120,by,240,46,'#e04060',true);by+=54;
     drawBtn('双人大屏',W/2-120,by,240,46,'#f0f0f0',true);by+=54;
 
     // Sound + Vibe toggles
