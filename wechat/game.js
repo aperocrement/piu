@@ -23,9 +23,6 @@ var winStreak = 0; // 连胜计数
 var soundOn=true,vibOn=true;
 try{var s=wx.getStorageSync('piu_cfg');if(s){soundOn=s.sound!==false;vibOn=s.vib!==false}}catch(e){}
 function saveCfg(){try{wx.setStorageSync('piu_cfg',{sound:soundOn,vib:vibOn})}catch(e){}}
-  {t:'收集道具',d:'黄色=加长板 蓝色=大力球'},
-  {t:'双击使用',d:'双击屏幕激活道具'}
-];
 var goData = null;
 var showExit = false;
 var homeMsg = '';
