@@ -307,7 +307,7 @@ function dr(){
     ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textBaseline='alphabetic';
     ct.fillText('一起噗一嘭',W/2,titleY+68);
     // Help button
-    drawBtn('?',W/2-14,titleY+80,28,28,'#555',false);
+    drawBtn('?',W/2-18,titleY+76,36,36,'#555',false);
 
     // Mode buttons
     var by=H*.45;
@@ -573,7 +573,7 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;saveCfg();if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;saveCfg();return}
     var titleY2=H*.25;
-    if(hitTest(cx,cy,W/2-14,titleY2+68,28,28)){showHelp=true;return}
+    if(hitTest(cx,cy,W/2-18,titleY2+76,36,36)){showHelp=true;return}
     if(hitTest(cx,cy,W/2-14,by+50,28,20)){wx.exitMiniProgram();return}
     return;
   }
