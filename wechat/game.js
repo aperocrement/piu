@@ -471,7 +471,7 @@ function drawVibIcon(cx,cy,on){
 function drawGO(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   ct.fillStyle='#f0f0f0';ct.font='bold 26px monospace';ct.textAlign='center';
-  ct.fillText(goData.w===1?'你赢了！':'你输了',W/2,H/2-80);
+  ct.fillText(goData.w===1?'你赢了！':'你输了！',W/2,H/2-80);
   if(goData.w===1&&winStreak>=1){ct.fillStyle='#ffd740';ct.font='bold 14px monospace';
     ct.fillText('连胜'+winStreak+'局！',W/2,H/2-50)}
   ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-10);
