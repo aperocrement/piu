@@ -19,6 +19,7 @@ ct.imageSmoothingEnabled = false;
 // === SCREEN STATE ===
 var screen = 'home'; // home | playing | gameover
 var showHelp = false;
+var winStreak = 0; // 连胜计数
 var soundOn = true;
 var vibOn = true;
 var goData = null;
@@ -217,18 +218,16 @@ function epu(pu){
 function gl(sc){
   g.phase='goal';g.ball.vx=0;g.ball.vy=0;
   if(g.couple){if(sc===2){g.sc[1]++;g.rsc[1]++}else{g.rsc[0]+=.5;g.sc[0]=Math.floor(g.rsc[0])}}
-  else{var bonus=combo>=10?2:combo>=5?1:0;g.sc[sc-1]+=1+bonus}
+  else{g.sc[sc-1]++}
   g.ls=sc;g.hits=0;g.pus=[];rally=0;
   isMatchPoint=(g.sc[0]===WIN-1&&g.sc[1]===WIN-1);
   sk2=12;spt(g.ball.x,g.ball.y,45,sc===1?'blue':'red');
   if(sc===1){sfxG();vg()}else{sfxL()}
   // Combo display (bonus already added above)
-  flipOld=g.sc[sc-1]-1-(combo>=10?2:combo>=5?1:0);flipSide=sc;flipTimer=55;
-  if(combo>=10)msgText='+3';else if(combo>=5)msgText='+2';else msgText='+1';
-  combo=0;
+  flipOld=g.sc[sc-1]-1;flipSide=sc;flipTimer=55;msgText='+1';combo=0;
   var wt=g.couple?(sc===2?CFW:CMW):WIN;
   var chk=g.couple?(sc===2?g.sc[1]:Math.floor(g.rsc[0])):g.sc[sc-1];
-  if(chk>=wt){setTimeout(function(){screen='gameover';goData={w:sc};if(sc===1)sfxWin();else sfxLose()},1400)}
+  if(chk>=wt){setTimeout(function(){if(sc===1)winStreak++;else winStreak=0;screen='gameover';goData={w:sc};if(sc===1)sfxWin();else sfxLose()},1400)}
   else{setTimeout(function(){rb()},2400)}
   g.round++;
 }
@@ -357,10 +356,9 @@ function dr(){
 
   // Exit + speaker buttons (bottom, above home indicator)
   if(screen==='playing'){
-    var exY=H-bottomSafe-36;
-    ct.fillStyle='#0a0a1a';ct.strokeStyle='#555';ct.lineWidth=2;
-    ct.fillRect(12,exY,36,36);ct.strokeRect(12,exY,36,36);
-    ct.fillStyle='#888';ct.font='bold 16px monospace';ct.textAlign='center';ct.fillText('X',30,exY+24);
+    var exY=H-bottomSafe-28;
+    ct.fillStyle='rgba(10,10,26,.5)';ct.fillRect(8,exY,20,20);
+    ct.fillStyle='#444';ct.font='12px monospace';ct.textAlign='center';ct.fillText('x',18,exY+15);
     // Sound + Vibe bottom-right
     drawSpeaker(W-56,exY+18,soundOn);
     drawVibIcon(W-22,exY+18,vibOn);
@@ -446,12 +444,13 @@ function drawVibIcon(cx,cy,on){
 function drawGO(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   ct.fillStyle='#f0f0f0';ct.font='bold 26px monospace';ct.textAlign='center';
-  ct.fillText(goData.w===1?'你赢了！':'你输了',W/2,H/2-70);
-  ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-20);
-  drawBtn('再来',W/2-100,H/2+20,200,44,'#00c6ff',true);
-  // Only show REVIVE if rewarded ad is available
-  if(rewardedVideoAd) drawBtn('继续',W/2-100,H/2+72,200,44,'#ffd740',true);
-  drawBtn('退出',W/2-60,H/2+(rewardedVideoAd?128:80),120,36,'#555',false);
+  ct.fillText(goData.w===1?'你赢了！':'你输了',W/2,H/2-80);
+  if(goData.w===1&&winStreak>=2){ct.fillStyle='#ffd740';ct.font='bold 14px monospace';
+    ct.fillText('连胜'+winStreak+'局！',W/2,H/2-50)}
+  ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-10);
+  drawBtn('再来',W/2-100,H/2+30,200,44,'#00c6ff',true);
+  if(rewardedVideoAd) drawBtn('继续',W/2-100,H/2+82,200,44,'#ffd740',true);
+  drawBtn('退出',W/2-60,H/2+(rewardedVideoAd?138:90),120,36,'#555',false);
 }
 function drawExitConfirm(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
@@ -493,7 +492,7 @@ function activatePU(){
     // 大力球只在球靠近玩家板子时生效
     var b=g.ball,padY=H-PY,distToPad=Math.abs(b.y-padY);
     if(distToPad>H*.4){msgText='太远';msgColor='#ff5252';msgTimer=600;sfxL();return}
-    b.vy=(b.vy>0?-1:1)*Math.abs(b.vy)*2.8;b.vx*=1.5;b.st=.6;b.sa=.6;
+    b.vy=-Math.abs(b.vy)*2.8;b.vx*=1.5;b.st=.6;b.sa=.6; // always upward
     sk2=8;sfxSmash();spt(b.x,b.y,25,'blue');puStored=null;
   }else{
     puActive=puStored;puStored=null;puTimer=180;sfxPU();
@@ -501,7 +500,7 @@ function activatePU(){
 }
 function aiActivate(){
   if(!aiStored||puActive)return;
-  if(aiStored==='speed'){var b=g.ball;b.vy=(b.vy<0?-1:1)*Math.abs(b.vy)*2.8;b.vx*=1.5;b.st=.6;b.sa=.6;sk2=6;sfxSmash();spt(b.x,b.y,20,'red')}
+  if(aiStored==='speed'){var b=g.ball;b.vy=Math.abs(b.vy)*2.8;b.vx*=1.5;b.st=.6;b.sa=.6;sk2=6;sfxSmash();spt(b.x,b.y,20,'red')}
   else{var ai2=g.ai;ai2.w=PW*2;setTimeout(function(){if(g)g.ai.w=PW},3000)}
   aiStored=null;
 }
@@ -512,13 +511,13 @@ wx.onTouchStart(function(e){
   var touch=e.touches[0];
   var cx=touch.clientX,cy=touch.clientY;
 
-  var exY2=H-bottomSafe-36;
+  var exY2=H-bottomSafe-28;
   // Sound + Vibe toggles (playing mode)
   if(screen==='playing'&&hitTest(cx,cy,W-60,exY2-10,28,44)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
   if(screen==='playing'&&hitTest(cx,cy,W-30,exY2-10,28,44)){vibOn=!vibOn;return}
   // Exit button
   if(SHOW_VERSION){ct.fillStyle="#333";ct.font="8px monospace";ct.textAlign="left";ct.fillText("v1.4",6,topSafe+70)}
-  if(screen==='playing'&&hitTest(cx,cy,12,exY2,36,36)){
+  if(screen==='playing'&&hitTest(cx,cy,8,exY2,20,20)){
     if(showExit){showExit=false;return}showExit=true;return;
   }
   if(showExit){
@@ -544,9 +543,9 @@ wx.onTouchStart(function(e){
 
   // Game over
   if(screen==='gameover'){
-    if(hitTest(cx,cy,W/2-100,H/2+20,200,44)){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();return}
-    if(rewardedVideoAd&&hitTest(cx,cy,W/2-100,H/2+72,200,44)){showRewarded(function(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();});return}
-    var qy=rewardedVideoAd?128:80;
+    if(hitTest(cx,cy,W/2-100,H/2+30,200,44)){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();return}
+    if(rewardedVideoAd&&hitTest(cx,cy,W/2-100,H/2+82,200,44)){showRewarded(function(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();});return}
+    var qy=rewardedVideoAd?138:90;
     if(hitTest(cx,cy,W/2-60,H/2+qy,120,36)){hideBanner();screen='home';g=mk();ig();goData=null;return}
     return;
   }
