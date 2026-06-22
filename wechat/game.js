@@ -23,11 +23,15 @@ var winStreak = 0; // 连胜计数
 var soundOn=true,vibOn=true;
 try{var s=wx.getStorageSync('piu_cfg');if(s){soundOn=s.sound!==false;vibOn=s.vib!==false}}catch(e){}
 function saveCfg(){try{wx.setStorageSync('piu_cfg',{sound:soundOn,vib:vibOn})}catch(e){}}
-// Tutorial — first game only
-var tutorialStep=0,tutorialTimer=0;
-var tutorialDone=false;
-try{tutorialDone=wx.getStorageSync('piu_tuto')===1}catch(e){}
-var tutorialTips=['拖拽挡板 拦截弹球','球出底线 对方得一分','先到5分获胜','双击屏幕 使用道具'];
+// Tutorial — shown before first game, tap to advance or skip
+var tutoActive=false,tutoStep=0,tutoDone=false;
+try{tutoDone=wx.getStorageSync('piu_tuto')===1}catch(e){}
+var tutoTips=[
+  {t:'拖拽底部挡板',d:'手指在屏幕下半部左右滑动'},
+  {t:'拦截弹球',d:'球出底线对方得分 先到5分获胜'},
+  {t:'收集道具',d:'黄色=加长板 蓝色=大力球'},
+  {t:'双击使用',d:'双击屏幕激活道具'}
+];
 var goData = null;
 var showExit = false;
 var homeMsg = '';
@@ -169,8 +173,6 @@ function up(dt){
   // Combo decay + match point speed
   if(comboTimer>0){comboTimer--;if(comboTimer<=0)combo=0}
   if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)msgText=''}
-  // Tutorial timer
-  if(!tutorialDone&&tutorialStep<4){tutorialTimer--;if(tutorialTimer<=0){tutorialStep++;tutorialTimer=300;if(tutorialStep>=4){tutorialDone=true;try{wx.setStorageSync('piu_tuto',1)}catch(e){}}}}
   // AI power-up auto-use
   if(aiStored){aiTimer++;if(aiTimer>120){aiActivate();aiTimer=0}}
   if(g.phase!=='playing')return;
@@ -214,8 +216,6 @@ function eh(pad,pl){
   spt(b.x,b.y,isPerfect?25:16,pty,pl===1?-Math.PI/2:Math.PI/2);
   sk2=Math.min(sk2+2,5);
   rally++;g.hits++;combo++;comboTimer=90;sfxH();vh();
-  // Tutorial: advance past step 0 on first hit
-  if(!tutorialDone&&tutorialStep===0){tutorialStep=1;tutorialTimer=240}
 }
 function epu(pu){
   var b=g.ball,pp=g.pad,ai=g.ai;
@@ -350,17 +350,6 @@ function dr(){
       ct.fillText('加长板 '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
     if(aiStored&&g&&g.mode!=='local'){ct.fillStyle='#e04060';ct.font='bold 9px monospace';ct.textAlign='center';
       ct.fillText('电脑: '+(aiStored==='extend'?'加长板':'大力球'),W/2,topSafe+88)}
-    // Tutorial bubble
-    if(!tutorialDone&&tutorialStep<4){
-      var tip=tutorialTips[tutorialStep];
-      var bw=ct.measureText(tip).width+20,bh=24,bx=W/2-bw/2,by=H*.65;
-      ct.fillStyle='rgba(0,0,0,.85)';ct.fillRect(bx,by,bw,bh);
-      ct.strokeStyle='#ffd740';ct.lineWidth=2;ct.strokeRect(bx,by,bw,bh);
-      ct.fillStyle='#fff';ct.font='bold 12px monospace';ct.textAlign='center';
-      ct.fillText(tip,W/2,by+16);
-      // Progress dots
-      for(var di=0;di<4;di++){ct.fillStyle=di===tutorialStep?'#ffd740':'#444';ct.fillRect(W/2-16+di*10,by+bh+6,6,6)}
-    }
   }
 
   // Feedback popup (太远 etc)
@@ -390,6 +379,8 @@ function dr(){
   // Game over overlay
   if(screen==='gameover')drawGO();
 
+  // Tutorial overlay
+  if(tutoActive)drawTutorial();
   // Help overlay
   if(showHelp)drawHelp();
   // Exit confirm
@@ -509,6 +500,26 @@ function drawExitConfirm(){
   drawBtn('是',W/2-100,H/2+10,90,40,'#00c6ff',true);
   drawBtn('否',W/2+10,H/2+10,90,40,'#555',false);
 }
+function drawTutorial(){
+  ct.fillStyle='rgba(10,10,26,.92)';ct.fillRect(0,0,W,H);
+  var s=tutoTips[tutoStep];
+  // Big number
+  ct.fillStyle='#ffd740';ct.font='bold 60px monospace';ct.textAlign='center';
+  ct.fillText(tutoStep+1,W/2,H*.32);
+  // Tip title
+  ct.fillStyle='#f0f0f0';ct.font='bold 24px monospace';
+  ct.fillText(s.t,W/2,H*.42);
+  // Description
+  ct.fillStyle='#888';ct.font='14px monospace';
+  ct.fillText(s.d,W/2,H*.48);
+  // Progress dots
+  for(var di=0;di<4;di++){ct.fillStyle=di===tutoStep?'#ffd740':'#444';ct.fillRect(W/2-24+di*16,H*.54,10,10)}
+  // Skip button
+  drawBtn('跳过',W/2-40,H*.62,80,36,'#555',false);
+  // Hint
+  ct.fillStyle='#555';ct.font='11px monospace';ct.textAlign='center';
+  ct.fillText('点击屏幕继续',W/2,H*.70);
+}
 function drawHelp(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   var lines=['拖拽底部挡板 拦截弹球','球出底线 对方得分','先到5分获胜','','黄色方块 = 加长挡板','蓝色方块 = 大力击球','双击屏幕 使用道具','','球到板子正中 弹回更快','连续接球 得分翻倍'];
@@ -529,10 +540,9 @@ function startGame(mode,diff){
   flipTimer=0;flipSide=0;
   puStored=null;puActive=null;puTimer=0;aiStored=null;aiTimer=0;
   combo=0;comboTimer=0;isMatchPoint=false;rally=0;hitStop=0;
-  if(!tutorialDone){tutorialStep=0;tutorialTimer=300}
-  screen='playing';
-  showBanner();
-  iac();
+  // First time: show tutorial overlay before game
+  if(!tutoDone){tutoActive=true;tutoStep=0;return}
+  screen='playing';showBanner();iac();
 }
 
 // === Double-tap power-up activation ===
@@ -561,6 +571,16 @@ wx.onTouchStart(function(e){
   iac();
   var touch=e.touches[0];
   var cx=touch.clientX,cy=touch.clientY;
+
+  // Tutorial: tap to advance, skip button
+  if(tutoActive){
+    if(hitTest(cx,cy,W/2-40,H*.62,80,36)){tutoActive=false;tutoDone=true;try{wx.setStorageSync('piu_tuto',1)}catch(e){};screen='playing';showBanner();return}
+    tutoStep++;
+    if(tutoStep>=4){tutoActive=false;tutoDone=true;try{wx.setStorageSync('piu_tuto',1)}catch(e){};screen='playing';showBanner();return}
+    return;
+  }
+
+  // Help overlay close
 
   var exY2=H-bottomSafe-22;
   // Sound + Vibe toggles (playing mode)
