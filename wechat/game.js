@@ -21,8 +21,8 @@ var showHelp = false;
 var winStreak = 0; // 连胜计数
 // Load saved preferences
 var soundOn=true,vibOn=true;
-try{var s=wx.getStorageSync('piu_cfg');if(s){soundOn=s.sound!==false;vibOn=s.vib!==false}}catch(e){}
-function saveCfg(){try{wx.setStorageSync('piu_cfg',{sound:soundOn,vib:vibOn})}catch(e){}}
+try{var ss=wx.getStorageSync('piu_sound');var vs=wx.getStorageSync('piu_vib');if(ss!=='')soundOn=ss;if(vs!=='')vibOn=vs}catch(e){}
+function saveCfg(){try{wx.setStorageSync('piu_sound',soundOn);wx.setStorageSync('piu_vib',vibOn)}catch(e){}}
 var goData = null;
 var showExit = false;
 var homeMsg = '';
@@ -575,7 +575,7 @@ wx.onTouchStart(function(e){
   // Game over
   if(screen==='gameover'){
     if(hitTest(cx,cy,W/2-100,H/2+30,200,44)){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();return}
-    if(hitTest(cx,cy,W/2-100,H/2+82,200,44)){try{wx.shareAppMessage({title:'噗一嘭 '+g.sc[0]+':'+g.sc[1]+' 一起来噗一嘭！'})}catch(e){};return}
+    if(hitTest(cx,cy,W/2-100,H/2+82,200,44)){var st='噗一嘭 '+g.sc[0]+':'+g.sc[1]+' 一起来噗一嘭！';try{wx.shareAppMessage({title:st})}catch(e){wx.setClipboardData({data:st,success:function(){wx.showToast({title:'已复制，去分享吧',icon:'none'})}})}};return}
     if(rewardedVideoAd&&hitTest(cx,cy,W/2-100,H/2+132,200,44)){showRewarded(function(watched){hideBanner();screen='playing';g=mk();ig();pts=[];sk2=0;goData=null;showBanner();});return}
     var qy=rewardedVideoAd?188:140;
     if(hitTest(cx,cy,W/2-60,H/2+qy,120,36)){hideBanner();screen='home';g=mk();ig();goData=null;return}
@@ -616,5 +616,3 @@ setInterval(lp,16);
 setInterval(function(){spu()},PUI);
 g=mk();ig();initAds();
 // Enable share menu
-try{wx.showShareMenu({menus:['shareAppMessage','shareTimeline']})}catch(e){}
-wx.onShareAppMessage(function(){var s0=g?g.sc[0]:0,s1=g?g.sc[1]:0;return{title:'噗一嘭 '+s0+':'+s1+' 一起来噗一嘭！',imageUrl:''}});
