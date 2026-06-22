@@ -308,7 +308,7 @@ function dr(){
     ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textBaseline='alphabetic';
     ct.fillText('一起噗一嘭',W/2,titleY+68);
     // Help — yellow square with ?
-    var hs=28,hx2=W/2-hs/2,hy2=titleY+90,sx=0;
+    var hs=28,hx2=W/2-16,hy2=titleY+90,sx=0;
     if(helpShake>0){sx=(helpShake%2===0?3:-3);helpShake--}
     ct.fillStyle='#ffd740';ct.fillRect(hx2+sx,hy2,hs,hs);
     ct.fillStyle='#0a0a1a';ct.font='bold 16px monospace';ct.textAlign='center';
@@ -578,7 +578,7 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;saveCfg();if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;saveCfg();return}
     var titleY2=H*.25;
-    if(hitTest(cx,cy,W/2-16,titleY2+88,32,32)){helpShake=6;setTimeout(function(){showHelp=true},200);return}
+    if(cx>W/2-18&&cx<W/2+18&&cy>titleY2+88&&cy<titleY2+120){helpShake=6;setTimeout(function(){showHelp=true},200);return}
     if(hitTest(cx,cy,W/2-14,by+50,28,20)){wx.exitMiniProgram();return}
     return;
   }
