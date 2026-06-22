@@ -577,8 +577,8 @@ wx.onTouchStart(function(e){
     var tglY2=H*.45+54*3+8;
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;saveCfg();if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;saveCfg();return}
-    var titleY2=H*.25;
-    if(cx>W/2-18&&cx<W/2+18&&cy>titleY2+88&&cy<titleY2+120){helpShake=6;setTimeout(function(){showHelp=true},200);return}
+    var hy3=H*.25+90,hs3=28;
+    if(cx>W/2-hs3&&cx<W/2+hs3&&cy>hy3&&cy<hy3+hs3+4){helpShake=6;setTimeout(function(){showHelp=true},200);return}
     if(hitTest(cx,cy,W/2-14,by+50,28,20)){wx.exitMiniProgram();return}
     return;
   }
