@@ -1,4 +1,4 @@
-// Piu一Piu — WeChat Mini Game v1.4
+// 噗一嘭 — WeChat Mini Game v1.4
 // High-DPI + Home screen + Sound toggle + Background demo
 try{wx.clearStorageSync()}catch(e){} // fresh start
 // DEBUG: show version on screen
@@ -280,20 +280,20 @@ function dr(){
     // Title
     ct.fillStyle='#00c6ff';ct.font='bold 32px monospace';ct.textAlign='center';
     ct.font='bold 32px monospace';
-    var t1='Piu',t2='一Piu',tw1=ct.measureText(t1).width,tw2=ct.measureText(t2).width;
+    var t1='噗',t2='一噗',tw1=ct.measureText(t1).width,tw2=ct.measureText(t2).width;
     var cx=W/2-(tw1+tw2)/2;
     ct.fillStyle='#00c6ff';ct.textAlign='left';ct.fillText(t1,cx,H*.28);
     ct.fillStyle='#e04060';ct.fillText(t2,cx+tw1,H*.28);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
-    ct.textAlign='center';ct.fillText('一起Piu一Piu',W/2,H*.28+56);
+    ct.textAlign='center';ct.fillText('一起噗一嘭',W/2,H*.28+56);
     // Help button
     drawBtn('?',W/2-14,H*.28+68,28,28,'#555',false);
 
     // Mode buttons
     var by=H*.45;
-    drawBtn('VS AI  EASY',W/2-120,by,240,46,'#00c6ff',true);by+=54;
-    drawBtn('VS AI  HARD',W/2-120,by,240,46,'#e04060',true);by+=54;
-    drawBtn('2P  LOCAL',W/2-120,by,240,46,'#f0f0f0',true);by+=54;
+    drawBtn('人机 简单',W/2-120,by,240,46,'#00c6ff',true);by+=54;
+    drawBtn('人机 困难',W/2-120,by,240,46,'#e04060',true);by+=54;
+    drawBtn('双人对战',W/2-120,by,240,46,'#f0f0f0',true);by+=54;
 
     // Sound + Vibe toggles
     var tglY=by+18;
@@ -301,7 +301,7 @@ function dr(){
     drawVibIcon(W/2+30,tglY,vibOn);
 
     // Exit
-    drawBtn('EXIT',W/2-50,by+60,100,36,'#555',false);
+    drawBtn('退出',W/2-50,by+60,100,36,'#555',false);
   }
 
   // === PLAYING HUD ===
@@ -311,7 +311,7 @@ function dr(){
     ct.fillStyle='#f0f0f0';ct.font='bold 26px monospace';
     ct.fillText(g.sc[0]+'  :  '+g.sc[1],W/2,topSafe+42);
     ct.fillStyle='#888';ct.font='bold 11px monospace';
-    ct.fillText('ROUND '+g.round,W/2,topSafe+60);
+    ct.fillText('回合 '+g.round,W/2,topSafe+60);
     // Match point: screen border pulse (via grid color already red)
     // Combo & rally: silent — expressed through particles, shake, and ball trail
     // Power-up indicators
@@ -320,7 +320,7 @@ function dr(){
     if(puActive){ct.fillStyle='#ffd740';ct.font='bold 11px monospace';ct.textAlign='center';
       ct.fillText('加长板 '+Math.ceil(puTimer/60)+'s',W/2,topSafe+76)}
     if(aiStored&&g&&g.mode!=='local'){ct.fillStyle='#e04060';ct.font='bold 9px monospace';ct.textAlign='center';
-      ct.fillText('AI: '+(aiStored==='extend'?'加长板':'大力球'),W/2,topSafe+88)}
+      ct.fillText('电脑: '+(aiStored==='extend'?'加长板':'大力球'),W/2,topSafe+88)}
   }
 
   // Feedback popup (太远 etc)
@@ -446,26 +446,26 @@ function drawVibIcon(cx,cy,on){
 function drawGO(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   ct.fillStyle='#f0f0f0';ct.font='bold 26px monospace';ct.textAlign='center';
-  ct.fillText(goData.w===1?'YOU WIN!':'YOU LOSE',W/2,H/2-70);
+  ct.fillText(goData.w===1?'你赢了！':'你输了',W/2,H/2-70);
   ct.font='bold 40px monospace';ct.fillText(g.sc[0]+' : '+g.sc[1],W/2,H/2-20);
-  drawBtn('RETRY',W/2-100,H/2+20,200,44,'#00c6ff',true);
+  drawBtn('再来',W/2-100,H/2+20,200,44,'#00c6ff',true);
   // Only show REVIVE if rewarded ad is available
-  if(rewardedVideoAd) drawBtn('REVIVE',W/2-100,H/2+72,200,44,'#ffd740',true);
-  drawBtn('QUIT',W/2-60,H/2+(rewardedVideoAd?128:80),120,36,'#555',false);
+  if(rewardedVideoAd) drawBtn('继续',W/2-100,H/2+72,200,44,'#ffd740',true);
+  drawBtn('退出',W/2-60,H/2+(rewardedVideoAd?128:80),120,36,'#555',false);
 }
 function drawExitConfirm(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   ct.fillStyle='#f0f0f0';ct.font='bold 18px monospace';ct.textAlign='center';
-  ct.fillText('QUIT ?',W/2,H/2-30);
-  drawBtn('YES',W/2-100,H/2+10,90,40,'#00c6ff',true);
-  drawBtn('NO',W/2+10,H/2+10,90,40,'#555',false);
+  ct.fillText('退出？',W/2,H/2-30);
+  drawBtn('是',W/2-100,H/2+10,90,40,'#00c6ff',true);
+  drawBtn('否',W/2+10,H/2+10,90,40,'#555',false);
 }
 function drawHelp(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   var lines=['拖拽底部挡板 拦截弹球','球出底线 对方得分','先到5分获胜','','黄色方块 = 加长挡板','蓝色方块 = 大力击球','双击屏幕 使用道具','','球到板子正中 弹回更快','连续接球 得分翻倍'];
   var startY=H*.5-lines.length*11;
   ct.fillStyle='#f0f0f0';ct.font='bold 18px monospace';ct.textAlign='center';
-  ct.fillText('怎么玩',W/2,startY-16);
+  ct.fillText('游戏说明',W/2,startY-16);
   ct.fillStyle='#888';ct.font='12px monospace';
   for(var i=0;i<lines.length;i++){ct.fillText(lines[i],W/2,startY+18+i*22)}
   drawBtn('知道了',W/2-50,H-bottomSafe-80,100,36,'#00c6ff',true);

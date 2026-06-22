@@ -1,5 +1,5 @@
 {
-  "description": "Piu一Piu - Pixel Bounce Arena",
+  "description": "噗一嘭 - Pixel Bounce Arena",
   "setting": {
     "urlCheck": true,
     "es6": true,
@@ -28,7 +28,7 @@
   "compileType": "game",
   "libVersion": "3.16.1",
   "appid": "wx94e5a4100882660a",
-  "projectname": "Piu一Piu",
+  "projectname": "噗一嘭",
   "condition": {},
   "simulatorPluginLibVersion": {},
   "packOptions": {
