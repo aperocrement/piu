@@ -306,8 +306,11 @@ function dr(){
     ct.fillStyle='#e04060';ct.fillRect(cx-6,decoY+4,4,4);ct.fillRect(cx+36,decoY+4,4,4);
     ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textBaseline='alphabetic';
     ct.fillText('一起噗一嘭',W/2,titleY+68);
-    // Help button
-    drawBtn('游戏说明',W/2-60,titleY+76,120,32,'#555',false);
+    // Pixel lightbulb icon
+    var hx=W/2-10,hy=titleY+72;
+    ct.fillStyle='#554400';ct.fillRect(hx,hy,20,24);
+    ct.fillStyle='#ffd740';ct.fillRect(hx+4,hy+4,12,12);
+    ct.fillStyle='#ffd740';ct.fillRect(hx+8,hy+16,4,8);
 
     // Mode buttons
     var by=H*.45;
@@ -573,7 +576,7 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;saveCfg();if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;saveCfg();return}
     var titleY2=H*.25;
-    if(hitTest(cx,cy,W/2-60,titleY2+76,120,32)){showHelp=true;return}
+    if(hitTest(cx,cy,W/2-16,titleY2+66,32,36)){showHelp=true;return}
     if(hitTest(cx,cy,W/2-14,by+50,28,20)){wx.exitMiniProgram();return}
     return;
   }
