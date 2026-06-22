@@ -278,19 +278,26 @@ function dr(){
     // Dim overlay
     ct.fillStyle='rgba(10,10,26,.75)';ct.fillRect(0,0,W,H);
 
-    // Title — pixel shadow + clean
-    var titleY=H*.25;
-    ct.font='bold 40px monospace';
-    var t1='噗',t2='一嘭',tw1=ct.measureText(t1).width,tw2=ct.measureText(t2).width;
-    var cx=W/2-(tw1+tw2)/2;
-    // Pixel shadow (offset blocks, no blur)
-    ct.fillStyle='rgba(0,0,0,.3)';ct.textAlign='left';
-    ct.fillText(t1,cx+3,titleY+43);ct.fillText(t2,cx+tw1+3,titleY+43);
-    // Main text
-    ct.fillStyle='#00c6ff';ct.fillText(t1,cx,titleY+40);
-    ct.fillStyle='#e04060';ct.fillText(t2,cx+tw1,titleY+40);
+    // Pixel-art title — render tiny, sample, draw blocks
+    var titleY=H*.22,ps=5,gs=24;
+    function drawPixelChar(ch,color,tx,ty){
+      // Draw tiny on main canvas
+      ct.save();ct.fillStyle='#000';ct.fillRect(tx,ty,gs,gs);
+      ct.fillStyle='#fff';ct.font='bold 16px monospace';ct.textAlign='center';ct.textBaseline='middle';
+      ct.fillText(ch,tx+gs/2,ty+gs/2);
+      var id=ct.getImageData(tx,ty,gs,gs).data;ct.restore();
+      // Redraw as blocks
+      ct.fillStyle=color;
+      for(var y=0;y<gs;y++)for(var x=0;x<gs;x++){
+        if(id[(y*gs+x)*4]>128)ct.fillRect(tx+x*ps,ty+y*ps,ps,ps);
+      }
+    }
+    var tw=gs*ps,cx=W/2-(tw*3+ps*2)/2;
+    drawPixelChar('噗','#00c6ff',cx,titleY);
+    drawPixelChar('一','#ccc',cx+tw+ps,titleY);
+    drawPixelChar('嘭','#e04060',cx+tw*2+ps*2,titleY);
     ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textAlign='center';
-    ct.fillText('一起噗一嘭',W/2,titleY+62);
+    ct.fillText('一起噗一嘭',W/2,titleY+gs*ps+16);
     // Help button
     drawBtn('?',W/2-14,titleY+68,28,28,'#555',false);
 
