@@ -580,7 +580,6 @@ wx.onTouchStart(function(e){
     var qy=rewardedVideoAd?188:140;
     if(hitTest(cx,cy,W/2-60,H/2+qy,120,36)){hideBanner();screen='home';g=mk();ig();goData=null;return}
     return;
-  }
 
   if(!g||g.phase!=='playing'||screen!=='playing')return;
   // Double-tap to activate stored power-up
