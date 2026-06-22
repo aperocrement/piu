@@ -120,7 +120,9 @@ sptAmb();
 
 // === AUDIO ===
 var AC=null;
-function iac(){if(!AC&&soundOn){try{AC=wx.createWebAudioContext()}catch(e){};if(AC&&AC.state==='suspended')AC.resume()}}
+// Bypass phone silent switch
+try{wx.setInnerAudioOption&&wx.setInnerAudioOption({mixWithOther:true,obeyMuteSwitch:false})}catch(e){}
+function iac(){if(!AC&&soundOn){try{AC=wx.createWebAudioContext()}catch(e){};if(AC){if(AC.state==='suspended')AC.resume();AC.onstatechange=function(){if(AC.state==='suspended'&&soundOn)AC.resume()}}}}
 function bp(f,ty,d,v,ge){
   if(!AC||!soundOn)return;
   try{var t2=AC.currentTime,o=AC.createOscillator(),gn=AC.createGain();
@@ -299,8 +301,8 @@ function dr(){
     drawSpeaker(W/2-30,tglY,soundOn);
     drawVibIcon(W/2+30,tglY,vibOn);
 
-    // Exit
-    drawBtn('退出',W/2-50,by+60,100,36,'#555',false);
+    // Exit (small text)
+    ct.fillStyle='#444';ct.font='10px monospace';ct.textAlign='center';ct.fillText('退出',W/2,by+64);
   }
 
   // === PLAYING HUD ===
@@ -537,7 +539,7 @@ wx.onTouchStart(function(e){
     if(hitTest(cx,cy,W/2-44,tglY2,42,32)){soundOn=!soundOn;if(!soundOn)AC=null;else iac();return}
     if(hitTest(cx,cy,W/2+2,tglY2,42,32)){vibOn=!vibOn;return}
     if(hitTest(cx,cy,W/2-14,H*.28+68,28,28)){showHelp=true;return}
-    if(hitTest(cx,cy,W/2-50,by+60,100,36)){wx.exitMiniProgram();return}
+    if(hitTest(cx,cy,W/2-20,by+54,40,22)){wx.exitMiniProgram();return}
     return;
   }
 
