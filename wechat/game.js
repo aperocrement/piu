@@ -280,15 +280,28 @@ function dr(){
     // Dim overlay
     ct.fillStyle='rgba(10,10,26,.75)';ct.fillRect(0,0,W,H);
 
-    // Title
-    var titleY=H*.25;
-    ct.font='bold 42px monospace';ct.textAlign='center';
-    ct.fillStyle='#00c6ff';ct.fillText('噗',W/2-80,titleY+40);
-    ct.fillStyle='#e04060';ct.fillText('一嘭',W/2+36,titleY+40);
-    ct.fillStyle='#888';ct.font='bold 11px monospace';
-    ct.fillText('一起噗一嘭',W/2,titleY+60);
+    // Pixel title with blocky outline
+    var titleY=H*.22,fs=46;
+    ct.font='bold '+fs+'px monospace';ct.textAlign='center';ct.textBaseline='middle';
+    var fullText='噗一嘭',tw=ct.measureText(fullText).width,cx=W/2,cy=titleY+24;
+    // Pixel outline: draw black offset in 4 directions
+    ct.fillStyle='#000';
+    ct.fillText(fullText,cx+4,cy);ct.fillText(fullText,cx-4,cy);
+    ct.fillText(fullText,cx,cy+4);ct.fillText(fullText,cx,cy-4);
+    ct.fillText(fullText,cx+4,cy+4);ct.fillText(fullText,cx-4,cy-4);
+    ct.fillText(fullText,cx+4,cy-4);ct.fillText(fullText,cx-4,cy+4);
+    // Colored text on top
+    ct.fillStyle='#00c6ff';ct.fillText('噗',cx-tw/2+ct.measureText('噗').width/2,cy);
+    ct.fillStyle='#e04060';ct.fillText('一嘭',cx+tw/2-ct.measureText('一嘭').width/2,cy);
+    // Pixel decorations
+    var decoY=titleY-8;
+    ct.fillStyle='#ffd740';ct.fillRect(cx-30,decoY,6,6);ct.fillRect(cx+24,decoY,6,6);
+    ct.fillStyle='#00c6ff';ct.fillRect(cx-18,decoY+6,4,4);ct.fillRect(cx+12,decoY+6,4,4);
+    ct.fillStyle='#e04060';ct.fillRect(cx-6,decoY+4,4,4);ct.fillRect(cx+36,decoY+4,4,4);
+    ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textBaseline='alphabetic';
+    ct.fillText('一起噗一嘭',W/2,titleY+68);
     // Help button
-    drawBtn('?',W/2-14,titleY+72,28,28,'#555',false);
+    drawBtn('?',W/2-14,titleY+80,28,28,'#555',false);
 
     // Mode buttons
     var by=H*.45;
