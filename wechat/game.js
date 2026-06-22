@@ -23,12 +23,6 @@ var winStreak = 0; // 连胜计数
 var soundOn=true,vibOn=true;
 try{var s=wx.getStorageSync('piu_cfg');if(s){soundOn=s.sound!==false;vibOn=s.vib!==false}}catch(e){}
 function saveCfg(){try{wx.setStorageSync('piu_cfg',{sound:soundOn,vib:vibOn})}catch(e){}}
-// Tutorial — shown before first game, tap to advance or skip
-var tutoActive=false,tutoStep=0,tutoDone=false;
-try{tutoDone=wx.getStorageSync('piu_tuto')===1}catch(e){}
-var tutoTips=[
-  {t:'拖拽底部挡板',d:'手指在屏幕下半部左右滑动'},
-  {t:'拦截弹球',d:'球出底线对方得分 先到5分获胜'},
   {t:'收集道具',d:'黄色=加长板 蓝色=大力球'},
   {t:'双击使用',d:'双击屏幕激活道具'}
 ];
@@ -379,8 +373,6 @@ function dr(){
   // Game over overlay
   if(screen==='gameover')drawGO();
 
-  // Tutorial overlay
-  if(tutoActive)drawTutorial();
   // Help overlay
   if(showHelp)drawHelp();
   // Exit confirm
@@ -500,26 +492,6 @@ function drawExitConfirm(){
   drawBtn('是',W/2-100,H/2+10,90,40,'#00c6ff',true);
   drawBtn('否',W/2+10,H/2+10,90,40,'#555',false);
 }
-function drawTutorial(){
-  ct.fillStyle='rgba(10,10,26,.92)';ct.fillRect(0,0,W,H);
-  var s=tutoTips[tutoStep];
-  // Big number
-  ct.fillStyle='#ffd740';ct.font='bold 60px monospace';ct.textAlign='center';
-  ct.fillText(tutoStep+1,W/2,H*.32);
-  // Tip title
-  ct.fillStyle='#f0f0f0';ct.font='bold 24px monospace';
-  ct.fillText(s.t,W/2,H*.42);
-  // Description
-  ct.fillStyle='#888';ct.font='14px monospace';
-  ct.fillText(s.d,W/2,H*.48);
-  // Progress dots
-  for(var di=0;di<4;di++){ct.fillStyle=di===tutoStep?'#ffd740':'#444';ct.fillRect(W/2-24+di*16,H*.54,10,10)}
-  // Skip button
-  drawBtn('跳过',W/2-40,H*.62,80,36,'#555',false);
-  // Hint
-  ct.fillStyle='#555';ct.font='11px monospace';ct.textAlign='center';
-  ct.fillText('点击屏幕继续',W/2,H*.70);
-}
 function drawHelp(){
   ct.fillStyle='rgba(10,10,26,.95)';ct.fillRect(0,0,W,H);
   var lines=['拖拽底部挡板 拦截弹球','球出底线 对方得分','先到5分获胜','','黄色方块 = 加长挡板','蓝色方块 = 大力击球','双击屏幕 使用道具','','球到板子正中 弹回更快','连续接球 得分翻倍'];
@@ -540,8 +512,6 @@ function startGame(mode,diff){
   flipTimer=0;flipSide=0;
   puStored=null;puActive=null;puTimer=0;aiStored=null;aiTimer=0;
   combo=0;comboTimer=0;isMatchPoint=false;rally=0;hitStop=0;
-  // First time: show tutorial overlay before game
-  if(!tutoDone){tutoActive=true;tutoStep=0;return}
   screen='playing';showBanner();iac();
 }
 
@@ -572,13 +542,6 @@ wx.onTouchStart(function(e){
   var touch=e.touches[0];
   var cx=touch.clientX,cy=touch.clientY;
 
-  // Tutorial: tap to advance, skip button
-  if(tutoActive){
-    if(hitTest(cx,cy,W/2-40,H*.62,80,36)){tutoActive=false;tutoDone=true;try{wx.setStorageSync('piu_tuto',1)}catch(e){};screen='playing';showBanner();return}
-    tutoStep++;
-    if(tutoStep>=4){tutoActive=false;tutoDone=true;try{wx.setStorageSync('piu_tuto',1)}catch(e){};screen='playing';showBanner();return}
-    return;
-  }
 
   // Help overlay close
 
