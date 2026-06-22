@@ -169,7 +169,9 @@ function up(dt){
 
   if(g.mode!=='local'&&g.mode!=='couple'){ai.tx=b.x;var d=ai.tx-(ai.x+ai.w/2);var sp=g.diff==='hard'?7:g.diff==='easy'?3:4.8;if(Math.abs(d)>5)ai.x+=d>0?sp:-sp;if(g.diff==='easy')ai.x+=(Math.random()-.5)*4;else if(g.diff==='medium')ai.x+=(Math.random()-.5)*1.8;ai.x=Math.max(0,Math.min(W-ai.w,ai.x))}
 
-  b.x+=b.vx;b.y+=b.vy;
+  // 闪电弹模式：球速×1.3
+  var spdMul=g.diff==='hard'?1.3:1;
+  b.x+=b.vx*spdMul;b.y+=b.vy*spdMul;
   if(Math.abs(b.vx)+Math.abs(b.vy)>2){b.trail.push({x:b.x,y:b.y,life:1,r:b.r*b.sa,st:b.state});if(b.trail.length>16)b.trail.shift()}
   b.trail.forEach(function(t){t.life-=.07});b.trail=b.trail.filter(function(t){return t.life>0});
 
@@ -278,32 +280,21 @@ function dr(){
     // Dim overlay
     ct.fillStyle='rgba(10,10,26,.75)';ct.fillRect(0,0,W,H);
 
-    // Pixel-art title — draw small, scale up blocky
-    var titleY=H*.20,scale=5;
-    var pw=Math.floor(W*.7),ph=Math.floor(pw/6); // proportional
-    var sx=Math.floor((W-pw)/2),sy=Math.floor(titleY);
-    // Draw text tiny
-    ct.save();ct.fillStyle='#0a0a1a';ct.fillRect(sx,sy,pw,ph);
-    ct.fillStyle='#fff';ct.font='bold '+Math.floor(ph/3)+'px monospace';ct.textAlign='center';ct.textBaseline='middle';
-    ct.fillText('噗一嘭',sx+pw/2,sy+ph/2);
-    ct.restore();
-    // Copy scaled up (pixelated)
-    ct.imageSmoothingEnabled=false;
-    ct.drawImage(canvas,sx,sy,pw,ph,sx,sy,pw*scale,ph*scale);
-    // Overlay color tint by drawing semi-transparent colored rects over each part
-    ct.fillStyle='rgba(0,198,255,.3)';ct.fillRect(sx,sy,pw*scale*.33,ph*scale);
-    ct.fillStyle='rgba(255,96,144,.3)';ct.fillRect(sx+pw*scale*.6,sy,pw*scale*.4,ph*scale);
-    ct.imageSmoothingEnabled=true;
-    ct.fillStyle='#888';ct.font='bold 11px monospace';ct.textAlign='center';
-    ct.fillText('一起噗一嘭',W/2,titleY+ph*scale+20);
+    // Title
+    var titleY=H*.25;
+    ct.font='bold 42px monospace';ct.textAlign='center';
+    ct.fillStyle='#00c6ff';ct.fillText('噗',W/2-80,titleY+40);
+    ct.fillStyle='#e04060';ct.fillText('一嘭',W/2+36,titleY+40);
+    ct.fillStyle='#888';ct.font='bold 11px monospace';
+    ct.fillText('一起噗一嘭',W/2,titleY+60);
     // Help button
-    drawBtn('?',W/2-14,titleY+68,28,28,'#555',false);
+    drawBtn('?',W/2-14,titleY+72,28,28,'#555',false);
 
     // Mode buttons
     var by=H*.45;
-    drawBtn('休闲模式',W/2-120,by,240,46,'#00c6ff',true);by+=54;
-    drawBtn('挑战模式',W/2-120,by,240,46,'#e04060',true);by+=54;
-    drawBtn('好友对战',W/2-120,by,240,46,'#f0f0f0',true);by+=54;
+    drawBtn('慢慢玩模式',W/2-120,by,240,46,'#00c6ff',true);by+=54;
+    drawBtn('闪电弹模式',W/2-120,by,240,46,'#e04060',true);by+=54;
+    drawBtn('双人大屏',W/2-120,by,240,46,'#f0f0f0',true);by+=54;
 
     // Sound + Vibe toggles
     var tglY=by+18;
